@@ -35,7 +35,7 @@ export function AppShell({ me, unread, pending, children }: { me: Me; unread: nu
   return (
     <div className="min-h-screen md:flex">
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 btn-primary">跳到主要內容</a>
-      <aside className="relative hidden md:flex md:w-60 md:shrink-0 md:flex-col md:border-r md:border-line md:bg-card md:px-3 md:py-5 md:sticky md:top-0 md:h-screen">
+      <aside className="relative hidden md:flex md:w-60 md:shrink-0 md:flex-col md:border-r md:border-line md:bg-card md:px-3 md:py-5 md:sticky md:top-0 md:h-screen md:overflow-y-auto">
         <div aria-hidden className="brand-stripe absolute inset-x-0 top-0 h-1" />
         <Link href="/" className="mb-6 block px-1" aria-label="臺北市大同發展中心 營運暨評鑑追蹤平台（回首頁）">
           {/* logo 為白底，深色模式下以白色底板呈現，維持 CI 原貌 */}
@@ -72,7 +72,14 @@ export function AppShell({ me, unread, pending, children }: { me: Me; unread: nu
           </div>
         </MobileNav>
       </Suspense>
-      <main id="main" tabIndex={-1} className="outline-none min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8 max-w-[1400px]">{children}</main>
+      <main id="main" tabIndex={-1} className="outline-none min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8 max-w-[1400px]">
+        {/* 右上角固定顯示目前登入者與登出（左側選單過長時底部可能超出畫面） */}
+        <div className="mb-4 hidden items-center justify-end gap-3 text-sm md:flex">
+          <span className="text-muted">{me.name}</span>
+          <SignOutButton className="btn-ghost min-h-9 px-3 text-sm" />
+        </div>
+        {children}
+      </main>
     </div>
   );
 }
