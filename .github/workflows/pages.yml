@@ -1,0 +1,56 @@
+# 發布到 GitHub Pages（比照經費平台：程式放 GitHub、網站由 GitHub Pages 提供，全部免費）
+# 每次上傳（push）到 main 分支，就自動建置並更新網站；也可以在 Actions 頁面手動執行。
+# 需要先在儲存庫 Settings → Secrets and variables → Actions → Variables 設定：
+#   SUPABASE_URL       Supabase 專案網址（https://xxxx.supabase.co）
+#   SUPABASE_ANON_KEY  Supabase 的 anon（publishable）金鑰；這把金鑰本來就會出現在網頁裡，權限由資料庫 RLS 把關
+# 千萬不要放 service_role（secret）金鑰。
+name: 發布到 GitHub Pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: 計算網站子路徑
+        id: base
+        run: |
+          repo="${{ github.event.repository.name }}"
+          if [[ "$repo" == *.github.io ]]; then echo "path=" >> "$GITHUB_OUTPUT"; else echo "path=/$repo" >> "$GITHUB_OUTPUT"; fi
+      - name: 檢查設定
+        run: |
+          test -n "${{ vars.SUPABASE_URL }}" || { echo "::error::請先設定 Variables：SUPABASE_URL"; exit 1; }
+          test -n "${{ vars.SUPABASE_ANON_KEY }}" || { echo "::error::請先設定 Variables：SUPABASE_ANON_KEY"; exit 1; }
+      - run: npm ci
+      - run: npx next build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_BASE_PATH: ${{ steps.base.outputs.path }}
+          NEXT_TELEMETRY_DISABLED: '1'
+      - run: touch out/.nojekyll
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
