@@ -2,6 +2,7 @@
 import { AsyncView, Async, type PageLoader } from '@/components/AsyncView';
 import Link from 'next/link';
 import { requireMe } from '@/lib/session';
+import { asset } from '@/lib/supabase/browser';
 import { Badge } from '@/components/Badge';
 import { dueLabel, fmtDate, todayTaipei } from '@/lib/format';
 import type { TaskRow } from '@/lib/types';
@@ -39,9 +40,20 @@ async function Dashboard({ searchParams }: { searchParams: Promise<{ department?
           <div className="text-sm text-muted">今天 {fmtDate(todayTaipei())}（民國 {fmtDate(todayTaipei(), true)}）</div>
           <h1 className="h1">{me.name}，你好</h1>
           <p className="text-sm text-muted">以下是你負責或協作的工作。「我是主責」代表由你負責完成與申請結案；「我是協作」代表你協助主責。</p>
+          <a href={asset('/manual/')} className="mt-2 inline-flex min-h-9 items-center gap-1 rounded-full border border-accent px-3 text-sm font-medium text-accent hover:bg-accent-soft">📖 第一次使用？看操作手冊</a>
         </header>
         <Async of={MyWork} fallback={<MyWorkSkeleton />} />
         <p className="text-sm"><Link href="/tasks?filter=mine" className="text-accent">查看我負責的全部工作 →</Link></p>
+        <aside className="card flex flex-wrap items-center justify-between gap-3 border-l-4 border-l-accent p-4" aria-label="操作手冊">
+          <div>
+            <div className="font-semibold">不知道怎麼操作？</div>
+            <p className="text-sm text-muted">操作手冊一步一步教你回報進度、申請結案、登錄佐證，附實際畫面截圖。</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <a href={asset('/manual/')} className="btn-primary">看操作手冊</a>
+            <a href={asset('/manual/datong-staff-manual.pdf')} download className="btn-ghost">下載 PDF</a>
+          </div>
+        </aside>
       </div>
     );
   }
