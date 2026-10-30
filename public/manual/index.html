@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>同仁操作手冊｜大同發展中心</title>
+<style>
+:root{--ink:#1f2a37;--muted:#5b6675;--line:#dfe3e8;--paper:#f6f5f1;--card:#fff;--accent:#3b5a96;--sun:#f2a900}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.75 "Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif}
+.bar{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;padding:10px max(16px,env(safe-area-inset-left));background:var(--card);border-bottom:1px solid var(--line)}
+.bar::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,var(--sun) 0 40%,var(--accent) 40%)}
+.bar b{font-size:15px}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;font-size:14px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.wrap{max-width:980px;margin:0 auto;padding:24px max(16px,env(safe-area-inset-left)) 64px}
+h1{font-size:28px;line-height:1.3;margin:8px 0 4px}
+h2{font-size:22px;margin:48px 0 12px;padding-top:12px;border-top:2px solid var(--line);scroll-margin-top:72px}
+h3{font-size:18px;margin:28px 0 8px;scroll-margin-top:72px}
+p,li{max-width:72ch}
+nav.toc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 20px;margin:16px 0}
+nav.toc ol{margin:6px 0;padding-left:0;list-style:none;columns:2;column-gap:32px}
+nav.toc a{color:var(--accent);text-decoration:none;line-height:2}
+figure{margin:16px 0 24px}
+figure img{display:block;max-width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+figcaption{font-size:13px;color:var(--muted);margin-top:6px}
+table{border-collapse:collapse;width:100%;background:var(--card);margin:12px 0;font-size:15px}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:#eef1f6}
+.tbl{overflow-x:auto}
+a{color:var(--accent)}
+strong{color:#111}
+@media (max-width:640px){nav.toc ol{columns:1} h1{font-size:24px}}
+@media print{
+  .bar{display:none} body{background:#fff;font-size:12pt} .wrap{padding:0;max-width:none}
+  h2{break-before:page;border-top:0;margin-top:0} h2:first-of-type{break-before:auto}
+  figure{break-inside:avoid} figure img{max-height:15cm;width:auto;box-shadow:none}
+  table,tr{break-inside:avoid} nav.toc a{color:var(--ink)}
+}
+</style></head><body>
+<div class="bar"><b>大同發展中心｜同仁操作手冊</b><div class="btns">
+<a class="btn" href="../">← 回到平台</a>
+<a class="btn primary" href="datong-staff-manual.pdf" download>⬇ 下載 PDF</a></div></div>
+<main class="wrap">
+<h1 id="_1">營運暨評鑑追蹤平台 同仁操作手冊</h1>
+
+<p>2026-10-30 版</p>
+
+<nav class="toc" aria-label="目錄"><b>目錄</b><ol><li><a href="#1">1. 開始之前</a></li><li><a href="#2">2. 第一次登入</a></li><li><a href="#3">3. 認識畫面</a></li><li><a href="#4">4. 查看我的工作</a></li><li><a href="#5">5. 回報進度</a></li><li><a href="#6">6. 提報新工作</a></li><li><a href="#7">7. 評鑑中心與缺失改善</a></li><li><a href="#8">8. 佐證索引</a></li><li><a href="#9">9. 通知</a></li><li><a href="#10">10. 附章：組長與評鑑統籌</a></li><li><a href="#11">11. 常見問題與求助</a></li></ol></nav>
+<h2 id="1">1. 開始之前</h2>
+<p>這個平台是中心的線上工作本：主任交辦給你的工作、你的進度回報、評鑑要準備的資料，都記在同一個地方。你不用再另外填 Excel 或傳訊息報告進度，在平台上回報，主任和組長就看得到。</p>
+<p><strong>網址：</strong> https://renotzeng300-lang.github.io/datong-platform-web/</p>
+<p>建議把網址加入瀏覽器書籤，或在手機加到主畫面，之後點一下就能打開。</p>
+<p><strong>你需要準備：</strong></p>
+<ul>
+<li>一台電腦或手機，用 Chrome、Edge 或 Safari 瀏覽器都可以，不用安裝任何軟體。</li>
+<li>你自己的 Email 信箱。帳號由主任替你開通，每人一個，不可以和別人共用。</li>
+</ul>
+<p><strong>本手冊的截圖說明：</strong></p>
+<ul>
+<li>截圖裡的人名（例如「陳小華」「王大同」）和工作都是示範資料，你實際看到的會是自己的工作。</li>
+<li>截圖上的<strong>橘色框和數字</strong>，就是步驟裡要你按或要填的地方，照數字順序操作即可。</li>
+<li>按鈕上的字以畫面為準，本手冊用「」框起來，例如按「送出回報」。</li>
+</ul>
+<p><strong>平台幫你守住的規則（不用自己記）：</strong></p>
+<ul>
+<li>主任還沒核定的工作，不算正式交辦，你不需要動工，也不會收到通知。</li>
+<li>你只看得到自己負責或協作的工作，別人的工作細節看不到。</li>
+<li>所有回報都會留下紀錄，不能修改或刪除。寫錯了就再回報一次，用新的內容說明。</li>
+<li><strong>請不要在任何欄位寫入服務對象的姓名、病歷、家庭狀況或申訴內容。</strong> 需要提到時，用「成人區 A 生」這類去識別化寫法。</li>
+</ul>
+<h2 id="2">2. 第一次登入</h2>
+<p>第一次要先用邀請信設定密碼，之後每次都用 Email 加密碼登入。</p>
+<h3 id="2-1">2-1 收邀請信、設定密碼</h3>
+<ol>
+<li>主任替你開通帳號後，你的信箱會收到一封<strong>英文</strong>信，主旨是「You have been invited」。沒看到的話，請查一下「垃圾郵件」或「促銷內容」。</li>
+<li>點信中的「Accept the invite」連結。</li>
+<li>瀏覽器會打開平台的「設定密碼」頁，上方顯示你的 Email。</li>
+<li>在「新密碼（至少 10 字元）」輸入密碼，在「再輸入一次」輸入同一組密碼。</li>
+<li>按「儲存並進入系統」，就會進入你的首頁。</li>
+</ol>
+<figure><img src="img/s-setpw.png" alt="設定密碼頁" loading="lazy"><figcaption>設定密碼頁</figcaption></figure>
+<ul>
+<li>邀請連結只能用一次，而且有時效。如果畫面出現「連結無效或已過期」，請請主任重新寄一次。</li>
+<li>密碼請不要和其他網站共用，也不要告訴任何人，包括主任。</li>
+</ul>
+<h3 id="2-2">2-2 之後每次登入</h3>
+<ol>
+<li>打開平台網址。</li>
+<li>在「電子郵件」輸入你的 Email。</li>
+<li>在「密碼」輸入你設定的密碼。</li>
+<li>按「登入」。</li>
+</ol>
+<figure><img src="img/login.png" alt="登入頁：① Email、② 密碼、③ 登入" loading="lazy"><figcaption>登入頁：① Email、② 密碼、③ 登入</figcaption></figure>
+<p>如果你是點某個工作的連結進來、先被帶到登入頁，登入後會自動回到那個工作。</p>
+<h3 id="2-3">2-3 登出</h3>
+<ul>
+<li><strong>電腦：</strong> 按畫面右上角的「登出」，或左側選單最下方你名字下的「登出」。</li>
+<li><strong>手機：</strong> 按上方「選單 ☰」，最下面就是「登出」。</li>
+<li>在共用電腦（例如辦公室公用電腦）用完，<strong>一定要登出</strong>。</li>
+</ul>
+<h3 id="2-4">2-4 忘記密碼</h3>
+<p>平台沒有「忘記密碼」按鈕。請告訴主任，主任會寄一封重設密碼的信給你。點信中連結後，一樣會到「設定密碼」頁，照 2-1 的第 4、5 步設定新密碼即可。</p>
+<h2 id="3">3. 認識畫面</h2>
+<p>登入後的第一頁是「我的首頁」，它會告訴你今天先做哪件事。大部分時候，你只要從首頁點「前往處理」就好。</p>
+<h3 id="3-1">3-1 左側選單</h3>
+<figure><img src="img/s-sidebar.png" alt="左側選單" loading="lazy"><figcaption>左側選單</figcaption></figure>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>選單</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>我的首頁</td>
+<td>依急迫程度列出你的工作，每天從這裡開始</td>
+</tr>
+<tr>
+<td>工作管理</td>
+<td>你看得到的全部工作列表，可以搜尋、篩選；也從這裡提報新工作</td>
+</tr>
+<tr>
+<td>評鑑中心</td>
+<td>第 12 次評鑑的 58 項指標、官方標準原文與盤點進度</td>
+</tr>
+<tr>
+<td>缺失與改善</td>
+<td>被發現的缺失與指派給你的改善措施</td>
+</tr>
+<tr>
+<td>佐證索引</td>
+<td>評鑑佐證放在哪裡（Google 雲端連結或實體櫃位）</td>
+</tr>
+<tr>
+<td>同仁名錄</td>
+<td>同組同仁與主任</td>
+</tr>
+<tr>
+<td>通知</td>
+<td>紅色數字是未讀通知數</td>
+</tr>
+<tr>
+<td>操作手冊</td>
+<td>就是這份手冊，可以線上看或下載 PDF</td>
+</tr>
+</tbody>
+</table></div>
+<p>如果你是組長或評鑑統籌，還會多看到幾個選單，請看第 10 章。</p>
+<h3 id="3-2">3-2 我的首頁</h3>
+<figure><img src="img/s-home.png" alt="我的首頁" loading="lazy"><figcaption>我的首頁</figcaption></figure>
+<p>首頁把你的工作分成五區，由上到下就是處理的優先順序。每項工作只會出現在一區：</p>
+<ol>
+<li><strong>需要補件或回覆</strong>：你的申請被退回了，紅字會寫出退回原因。</li>
+<li><strong>今天到期／已逾期</strong>：今天就要處理。</li>
+<li><strong>需要我處理</strong>：還沒開始、等你回報第一次進度的工作。</li>
+<li><strong>即將到期（7 日內）</strong>：這週要安排完成。</li>
+<li><strong>我已送出、等待核定</strong>：球在主管那邊，你先不用動作。</li>
+</ol>
+<p>每項工作上有幾個重點：</p>
+<ul>
+<li><strong>「我是主責」／「我是協作」</strong>：主責負責完成並申請結案；協作是幫忙主責，可以回報進度，但不能申請結案。</li>
+<li><strong>「→」開頭的一句話</strong>：平台建議你下一步要做什麼。</li>
+<li><strong>正式期限</strong>：右側的日期。逾期時會變紅色。</li>
+<li><strong>「前往處理」</strong>：點下去就是那項工作的頁面。</li>
+</ul>
+<p>沒有工作的區塊會整理在最下方，顯示 0。</p>
+<h3 id="3-3">3-3 手機版</h3>
+<p>手機上左側選單會收起來。按畫面最上方的「選單 ☰」就能展開，登出也在這裡。其他操作和電腦版一樣。</p>
+<figure><img src="img/s-mobile-menu.png" alt="手機版展開選單" loading="lazy"><figcaption>手機版展開選單</figcaption></figure>
+<h2 id="4">4. 查看我的工作</h2>
+<p>「工作管理」列出你看得到的全部工作；點工作名稱就能打開詳情頁。</p>
+<h3 id="4-1">4-1 工作列表與篩選</h3>
+<figure><img src="img/s-tasks.png" alt="工作管理：① 快速篩選、② 關鍵字搜尋、③ 提報工作" loading="lazy"><figcaption>工作管理：① 快速篩選、② 關鍵字搜尋、③ 提報工作</figcaption></figure>
+<ol>
+<li>按左側選單「工作管理」。</li>
+<li>用上方的<strong>快速篩選</strong>（①）一鍵找工作，例如「已逾期」「7 日內到期」「我負責的」。被選中的會打勾。</li>
+<li>要找特定工作，在「關鍵字」（②）輸入工作名稱的幾個字，可以再搭配「組別」「狀態」「指標」，按「搜尋」。</li>
+<li>點工作名稱，打開詳情頁。</li>
+</ol>
+<p>「⬇ 匯出 Excel」會把目前篩選的結果下載成 Excel，檔案只含你有權限看的工作。內部資料請勿外流，用完請刪除。</p>
+<h3 id="4-2">4-2 工作詳情頁</h3>
+<figure><img src="img/s-task-item.png" alt="工作詳情頁" loading="lazy"><figcaption>工作詳情頁</figcaption></figure>
+<p>詳情頁從上到下是：</p>
+<ul>
+<li><strong>標題下的小標籤</strong>：工作狀態（例如「待處理」）、是否已核定、風險、優先度、工作編號。</li>
+<li><strong>灰底的「目前流程」框</strong>：告訴你現在輪到誰、你的角色，以及下一步建議。</li>
+<li><strong>左邊「工作內容」</strong>：主責人、協作、期限、應備佐證／成果、關聯的評鑑指標。</li>
+<li><strong>右邊「回報」</strong>：你在這裡回報進度、求助或申請結案（第 5 章）。</li>
+<li><strong>最下方「進度與核定歷程」</strong>：這項工作從交辦到現在的每一筆紀錄。</li>
+</ul>
+<h3 id="4-3">4-3 常見的工作狀態</h3>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>狀態</th>
+<th>意思</th>
+<th>你要做什麼</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>待分派</td>
+<td>還在等主任核定，不是正式交辦</td>
+<td>不用動工</td>
+</tr>
+<tr>
+<td>待處理</td>
+<td>已交辦，還沒開始</td>
+<td>開始後回報第一次進度</td>
+</tr>
+<tr>
+<td>進行中</td>
+<td>正在做</td>
+<td>有進展就回報</td>
+</tr>
+<tr>
+<td>待外部回覆</td>
+<td>在等外部單位或廠商</td>
+<td>在「下次追蹤日」追問</td>
+</tr>
+<tr>
+<td>受阻</td>
+<td>卡住了</td>
+<td>用「需要協助」說明</td>
+</tr>
+<tr>
+<td>待主管核定</td>
+<td>已申請結案，等核定</td>
+<td>等結果，不用再回報</td>
+</tr>
+<tr>
+<td>已結案</td>
+<td>主管已核定完成</td>
+<td>無</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="5">5. 回報進度</h2>
+<p>每項工作右側的「回報」區有三個分頁，依你的狀況選一個：</p>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>分頁</th>
+<th>什麼時候用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>回報進度</td>
+<td>有做一些事了，告訴主管做了什麼、下一步是什麼</td>
+</tr>
+<tr>
+<td>需要協助</td>
+<td>卡住了，需要別人幫忙，或要請主任做決定</td>
+</tr>
+<tr>
+<td>申請結案</td>
+<td>工作做完了，送主管核定（只有主責看得到這個分頁）</td>
+</tr>
+</tbody>
+</table></div>
+<p>切換分頁不會清掉已經填的內容；有未送出內容的分頁，名稱旁會出現一個小圓點。標「*」的欄位一定要填。</p>
+<h3 id="5-1">5-1 回報進度</h3>
+<figure><img src="img/s-report-progress.png" alt="回報進度" loading="lazy"><figcaption>回報進度</figcaption></figure>
+<ol>
+<li>從首頁按「前往處理」，或從「工作管理」點工作名稱，打開工作。</li>
+<li>在右側「回報」區點「回報進度」分頁（①）。</li>
+<li>「狀態」（②）：第一次動工請改成「進行中」；在等外部回覆就選「待外部回覆」，並填「下次追蹤日」；不變就不用動。</li>
+<li>「本次完成成果」（③）：具體寫這次做了什麼，例如「已完成 1、2 樓洗手台檢核，2 處缺少圖示」。</li>
+<li>「下一步行動」（④）與「下一步預計完成日」（⑤）：接下來要做什麼、預計哪天做完。日期不能早於今天。</li>
+<li>按「送出回報」（⑥）。看到綠色「進度已回報，歷程已更新。」就完成了。</li>
+</ol>
+<p>「下一步預計完成日」只是你的工作安排，<strong>不會改變正式期限</strong>。要延後期限，請用 5-5「申請變更期限」。</p>
+<h3 id="5-2">5-2 需要協助</h3>
+<figure><img src="img/s-report-help.png" alt="需要協助" loading="lazy"><figcaption>需要協助</figcaption></figure>
+<ol>
+<li>點「需要協助」分頁（①）。</li>
+<li>「目前卡點」（②）：寫清楚卡在哪裡。</li>
+<li>「需要的支援」（③）選一個：<ul>
+<li><strong>協助</strong>：需要其他同仁或組別配合，會出現在主任首頁的「需要督導或跨組協助」。</li>
+<li><strong>主任決策</strong>：要請主任拍板，會進入主任的「決策佇列」。</li>
+</ul>
+</li>
+<li>「需要的協助或要請主任決定的事」（④）與「希望回覆日期」（⑤）。</li>
+<li>如果工作已經完全停下來，勾選「工作已停擺」，狀態會改成「受阻」。</li>
+<li>按「送出協助需求」（⑥）。</li>
+</ol>
+<h3 id="5-3">5-3 申請結案</h3>
+<figure><img src="img/s-report-close.png" alt="申請結案" loading="lazy"><figcaption>申請結案</figcaption></figure>
+<ol>
+<li>點「申請結案」分頁（①）。只有主責看得到；協作請通知主責提出。</li>
+<li>「交付成果」（②）：寫完成了什麼。</li>
+<li>佐證二選一：<ul>
+<li>「成果連結（受控位置）」（③）：貼中心 Google 雲端的檔案或資料夾連結。</li>
+<li>「佐證說明」：紙本的話，寫放在哪個櫃、哪一層。</li>
+</ul>
+</li>
+<li>勾選「我確認已依交辦要求與驗收條件完成…」（④）。</li>
+<li>按「申請結案」（⑤）。</li>
+</ol>
+<p>送出後工作狀態變成「待主管核定」，會出現在首頁「我已送出、等待核定」。核定前不用再回報。</p>
+<h3 id="5-4">5-4 被退回時補件</h3>
+<p>主管覺得還不能結案時會退回，你會收到通知，這項工作也會移到首頁最上方的「需要補件或回覆」，紅字寫著退回原因。</p>
+<figure><img src="img/s-rework-page.png" alt="被退回的工作" loading="lazy"><figcaption>被退回的工作</figcaption></figure>
+<ol>
+<li>按「前往處理」打開工作。「申請結案」分頁會顯示「上次退回原因」。</li>
+<li>依退回原因補齊資料，重新填「交付成果」（①）與佐證（②），再勾選確認（③）。</li>
+<li>按「補件後重新申請結案」（④）。</li>
+</ol>
+<figure><img src="img/s-rework-form.png" alt="補件後重新申請結案" loading="lazy"><figcaption>補件後重新申請結案</figcaption></figure>
+<h3 id="5-5">5-5 申請變更期限</h3>
+<p>來不及在期限內完成時，請先申請，不要等逾期。</p>
+<figure><img src="img/s-due-change.png" alt="申請變更期限" loading="lazy"><figcaption>申請變更期限</figcaption></figure>
+<ol>
+<li>在工作頁右側往下捲，找到「申請變更期限」。</li>
+<li>「新期限」（①）選新的日期。</li>
+<li>「原因」（②）：說明為什麼需要延後。</li>
+<li>按「送出」（③）。</li>
+</ol>
+<p>主管核定前，<strong>原本的期限仍然有效</strong>。一項工作同時只能有一筆待核定的申請。</p>
+<h2 id="6">6. 提報新工作</h2>
+<p>發現一件應該要做、但還沒有人負責的事，可以自己提報。提報後會先進入「待主任核定」，主任核定前不算正式交辦。</p>
+<figure><img src="img/s-propose.png" alt="提報工作" loading="lazy"><figcaption>提報工作</figcaption></figure>
+<ol>
+<li>按「工作管理」，再按右上角「＋ 提報工作」。</li>
+<li>「工作名稱」（①）：用一句話說清楚要做什麼。不要寫服務對象姓名。</li>
+<li>「組別」（②）：選你自己的組別。</li>
+<li>「主責人」（③）：可以選自己，或「— 暫不指定 —」讓主任決定。</li>
+<li>「期限」（④）：你建議的完成日，主任核定時可能調整。</li>
+<li>「優先度」、「機密分級」、「關聯評鑑指標」（⑤）、「說明」依需要填。</li>
+<li>按「送出」（⑥）。</li>
+</ol>
+<p>送出後會打開這筆工作，綠字顯示「已建立。目前為「待主任核定」…」。主任核定後你會收到通知；如果被退回，可以在同一頁修改後重新提報。</p>
+<p><strong>機密分級怎麼選：</strong></p>
+<ul>
+<li><strong>一般內部</strong>：大部分工作。</li>
+<li><strong>限組別</strong>：只適合同組看的工作。</li>
+<li><strong>高度限制</strong>：只有主任、主責、協作人員看得到，組長和評鑑統籌也看不到。</li>
+</ul>
+<h2 id="7">7. 評鑑中心與缺失改善</h2>
+<p>評鑑中心放的是第 12 次評鑑的 58 項指標與官方標準原文；你可以隨時查看，是指標主責時才需要記錄檢核。這裡的數字是內部盤點進度，<strong>不是評鑑分數</strong>。</p>
+<h3 id="7-1">7-1 查看評鑑指標</h3>
+<figure><img src="img/s-eval.png" alt="評鑑中心" loading="lazy"><figcaption>評鑑中心</figcaption></figure>
+<ol>
+<li>按左側「評鑑中心」。</li>
+<li>用上方的標籤篩選，例如「有教保任務」「尚未盤點」。</li>
+<li>點指標名稱，打開指標頁。</li>
+</ol>
+<figure><img src="img/s-eval-item.png" alt="指標頁" loading="lazy"><figcaption>指標頁</figcaption></figure>
+<p>指標頁可以看到：官方標準原文（逐條）、評鑑實施方式、資料應準備期間、分工、年度佐證盤點、已登錄的佐證、相關缺失與關聯工作。</p>
+<ul>
+<li><strong>佐證齊備</strong>、<strong>自評符合</strong>、<strong>委員評定</strong>是三件不同的事。佐證齊了不代表符合，工作結案也不代表指標符合。</li>
+<li>發現平台上的標準原文與官方 PDF 不同，可以按該條下方「原文與 PDF 不符？提出修訂建議」。</li>
+</ul>
+<h3 id="7-2">7-2 如果你是指標主責：記錄檢核</h3>
+<p>主任核定「分工」後，指標主責才能逐條記錄檢核。</p>
+<figure><img src="img/s-eval-check.png" alt="記錄檢核" loading="lazy"><figcaption>記錄檢核</figcaption></figure>
+<ol>
+<li>在指標頁找到要檢核的那一條標準，按「記錄檢核」展開。</li>
+<li>「佐證狀態」（①）：未盤點／部分齊備／齊備。</li>
+<li>「標準符合（自評）」（②）：待檢核／符合／部分符合／不符合／待確認不適用。</li>
+<li>「缺口／待補事項」（③）：選「部分符合」或「不符合」時一定要填。</li>
+<li>「佐證存放位置／文件編號」（④）。</li>
+<li>按「送出檢核」（⑤）。紀錄會標「待複核」，等主任複核。</li>
+</ol>
+<h3 id="7-3">7-3 缺失與改善</h3>
+<p>缺失的流程是：發現缺失 → 主任安排改善措施（一個主責、一個期限）→ 主責回報完成 → 主任觀察成效，有效才結案。</p>
+<figure><img src="img/s-improvements.png" alt="缺失與改善列表" loading="lazy"><figcaption>缺失與改善列表</figcaption></figure>
+<p><strong>被指派改善措施時：</strong></p>
+<ol>
+<li>你會收到「你被指派一項改善措施」通知。按通知上的「查看缺失」，或從「缺失與改善」點缺失名稱。</li>
+<li>做完後，在你的措施下方「完成情形與佐證位置」（①）寫做了什麼、紀錄放哪裡。</li>
+<li>按「回報完成」（②）。</li>
+</ol>
+<figure><img src="img/s-impr-done.png" alt="回報改善完成" loading="lazy"><figcaption>回報改善完成</figcaption></figure>
+<p><strong>自己發現缺失時：</strong> 在「缺失與改善」按「提報缺失」，填缺失摘要、來源、發現日期、關聯指標後送出。摘要請去識別化，細節放在受控的佐證文件裡。</p>
+<h2 id="8">8. 佐證索引</h2>
+<p>平台<strong>不存放檔案本身</strong>，只記錄佐證的名稱、年度、關聯指標與存放位置。電子檔放在中心的 Google 雲端硬碟（tpta104@gmail.com），紙本放在中心檔案櫃。</p>
+<h3 id="8-1">8-1 登錄前：先把檔案放對地方</h3>
+<ol>
+<li>把檔案放進中心雲端硬碟裡、你那一組的資料夾（主任會先把資料夾分享給你的 Google 帳號）。<strong>不要放在你個人的雲端硬碟。</strong></li>
+<li>在 Google 雲端對檔案按右鍵 →「共用」→「複製連結」。</li>
+<li>確認「一般存取權」是「限制」，<strong>不是</strong>「知道連結的任何人」。</li>
+<li>含服務對象姓名、病歷、ISP、家庭或申訴內容的資料，<strong>不要放雲端</strong>，請放上鎖檔案櫃，平台只登錄櫃位與編號。</li>
+</ol>
+<h3 id="8-2">8-2 登錄佐證</h3>
+<figure><img src="img/s-evidence-new.png" alt="登錄佐證" loading="lazy"><figcaption>登錄佐證</figcaption></figure>
+<ol>
+<li>按左側「佐證索引」，再按「登錄佐證」。也可以從指標頁的「佐證文件」區按「登錄佐證」，指標會自動帶入。</li>
+<li>「佐證名稱」（①）：例如「115 年 10 月成人區手部衛生現場檢核表」。</li>
+<li>「年度」「文件類型」「版本」依需要填。</li>
+<li>「關聯指標」（②）：填指標代碼，多個用頓號或空白分開，例如「4304-B」。</li>
+<li>「密級」（③）：一般內部／限組別／高度限制。</li>
+<li>「存放方式」（④）選一個：<ul>
+<li><strong>Google雲端</strong>：在「Google 雲端連結」（⑤）貼上 8-1 複製的連結，並勾選「我已確認這個檔案沒有開啟「知道連結的任何人」…」（⑥）。</li>
+<li><strong>中心實體檔案</strong>：填櫃位與編號，例如「教保組資料櫃第 2 層」。</li>
+<li><strong>其他系統</strong>：填系統名稱與查詢方式。</li>
+</ul>
+</li>
+<li>按「登錄佐證」（⑦）。佐證會是「待審核」，等主任審核。</li>
+</ol>
+<h3 id="8-3">8-3 調閱佐證</h3>
+<figure><img src="img/s-evidence-item.png" alt="佐證詳情頁" loading="lazy"><figcaption>佐證詳情頁</figcaption></figure>
+<ol>
+<li>在「佐證索引」點佐證名稱。</li>
+<li>按「開啟 Google 雲端檔案」。實體檔案則會顯示存放位置。</li>
+<li>每次調閱都會記錄調閱者與時間。</li>
+</ol>
+<p>開啟後看不到檔案，代表 Google 雲端還沒分享給你，請聯絡登錄者或主任。平台上的「調閱授權」管的是誰拿得到連結，Google 雲端那邊也要分享給同一個人，兩邊都開了才打得開。</p>
+<p>檔案搬家或換新版時，在佐證頁最下方「修改存放位置」更新，佐證會回到「待審核」。</p>
+<h2 id="9">9. 通知</h2>
+<p>平台<strong>不會寄 Email</strong>，所有通知都在平台內。左側「通知」旁的紅色數字是未讀數，建議每天登入時看一下。</p>
+<figure><img src="img/s-notif.png" alt="站內通知" loading="lazy"><figcaption>站內通知</figcaption></figure>
+<p><strong>哪些事會通知你：</strong></p>
+<ul>
+<li>主任核定交辦一項工作給你（主責或協作）。</li>
+<li>你的結案申請、期限變更、提報被核定或退回。</li>
+<li>你被指派一項改善措施。</li>
+<li>主管對你的工作催辦。</li>
+</ul>
+<p><strong>怎麼看通知：</strong></p>
+<ol>
+<li>按左側「通知」。</li>
+<li>每則通知上方是當時發生的事；「目前狀態」是依最新資料判斷的現況。</li>
+<li>按「查看工作」或「查看缺失」直接前往處理。</li>
+<li>看完按「標為已讀」。</li>
+</ol>
+<p><strong>「已讀」不等於「已處理」</strong>。真正要做的事，以「我的首頁」列出的為準。</p>
+<h2 id="10">10. 附章：組長與評鑑統籌</h2>
+<p>這兩個角色由主任在平台上授權，沒有被授權的同仁可以跳過本章。目前社工組沒有組長，由主任核定。</p>
+<h3 id="10-1">10-1 組長</h3>
+<p>組長的首頁會同時有「我的工作」和「今天的重點」，選單多了「決策佇列」和「週報／月報」。組長只管自己組別的工作。</p>
+<figure><img src="img/l-approvals.png" alt="組長的決策佇列" loading="lazy"><figcaption>組長的決策佇列</figcaption></figure>
+<p><strong>核定或退回申請：</strong></p>
+<ol>
+<li>按「決策佇列」。上方可用類型篩選：交辦核定、結案核定、期限變更等。</li>
+<li>每張卡片寫著申請人、理由、期限變化。要看更多就按「檢視」。</li>
+<li>在「意見」填寫說明（退回時必填），按「核定」或「退回」。</li>
+</ol>
+<p><strong>其他可以做的事：</strong></p>
+<ul>
+<li>在自己組別的工作頁「分派主責／協作」、「變更期限」、「風險評估」。</li>
+<li>「週報／月報」下載 Excel，只含你有權限的資料。</li>
+<li>留職停薪、離職等人事異動仍由主任處理。</li>
+</ul>
+<h3 id="10-2">10-2 評鑑統籌</h3>
+<p>評鑑統籌負責協調、催辦、彙報主任。<strong>評鑑統籌不是代理組長</strong>，沒有核定與人事權限。</p>
+<figure><img src="img/c-board.png" alt="教保評鑑追蹤" loading="lazy"><figcaption>教保評鑑追蹤</figcaption></figure>
+<ol>
+<li>按左側「教保評鑑追蹤」。</li>
+<li>用「依狀態」或「依承辦人」切換檢視方式，看哪些工作逾期、哪位同仁工作量偏重。</li>
+<li>點工作名稱進入工作頁，可以「催辦」承辦人，或「向主任提報」需要主任決定的事。</li>
+<li>核定、改派與人事異動，仍由主任決定。</li>
+</ol>
+<h2 id="11">11. 常見問題與求助</h2>
+<div class="tbl"><table>
+<thead>
+<tr>
+<th>狀況</th>
+<th>怎麼辦</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>收不到邀請信</td>
+<td>查「垃圾郵件」「促銷內容」；還是沒有，請主任確認 Email 是否正確並重寄</td>
+</tr>
+<tr>
+<td>邀請連結顯示無效或已過期</td>
+<td>連結只能用一次，請主任重寄</td>
+</tr>
+<tr>
+<td>登入後出現「目前無法使用此功能」</td>
+<td>帳號還沒連結到你的人員資料，或已被暫停，請聯絡主任</td>
+</tr>
+<tr>
+<td>主任說交辦了，我卻看不到</td>
+<td>先按瀏覽器重新整理（電腦按 F5）；仍看不到，可能還在「待主任核定」</td>
+</tr>
+<tr>
+<td>打開工作顯示「找不到資料」</td>
+<td>你不是這項工作的主責或協作，或已被改派給別人</td>
+</tr>
+<tr>
+<td>送出時說畫面不是最新資料</td>
+<td>別人剛更新了這項工作。按畫面上的「保留輸入並載入最新資料」，你填的內容會留著，確認後再送出</td>
+</tr>
+<tr>
+<td>畫面一直顯示「載入中…」或「資料暫時無法載入」</td>
+<td>按「重試」或重新整理；一整天都這樣請通知主任</td>
+</tr>
+<tr>
+<td>忘記密碼</td>
+<td>請主任寄重設密碼信（第 2-4 節）</td>
+</tr>
+<tr>
+<td>寫錯了、想修改回報</td>
+<td>回報不能修改，請再回報一次，寫明更正內容</td>
+</tr>
+<tr>
+<td>Google 雲端檔案打不開</td>
+<td>雲端還沒分享給你，請聯絡登錄者或主任</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>個資提醒（請一定遵守）：</strong></p>
+<ul>
+<li>所有欄位都不寫服務對象姓名、病歷、家庭狀況、申訴內容。</li>
+<li>不共用帳號，不把密碼告訴任何人。</li>
+<li>匯出的 Excel 用完就刪除，不要轉寄。</li>
+<li>電子佐證只放中心雲端，不開「知道連結的任何人」。</li>
+</ul>
+<p><strong>找誰幫忙：</strong> 帳號、密碼、權限、工作分派問題請找主任。工作內容問題請找你的組長或工作主責。</p>
+</main></body></html>
