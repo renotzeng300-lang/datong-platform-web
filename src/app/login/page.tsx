@@ -21,6 +21,7 @@ function Login() {
         <LoginForm next={next && next.startsWith('/') && !next.startsWith('//') ? next : '/'} />
         <p className="mt-6 text-xs leading-relaxed text-muted">
           每位同仁使用個人帳號登入，帳號由主任邀請開通，不提供自行註冊或共用帳號。忘記密碼請聯絡主任重新寄送設定連結。
+          <a href={asset('/manual/')} className="mt-2 block text-accent underline-offset-2 hover:underline">第一次使用？看同仁操作手冊 →</a>
         </p>
       </div>
     </div>
