@@ -22,6 +22,10 @@ export function AppShell({ me, unread, pending, children }: { me: Me; unread: nu
       {(me.is_director || isLead) && <NavLink href="/reports">週報／月報</NavLink>}
       <NavLink href="/people">{me.is_director ? '組織人員' : '同仁名錄'}</NavLink>
       <NavLink href="/notifications" badge={unread}>通知</NavLink>
+      {/* 同仁操作手冊：靜態網頁 public/manual/（可線上看、可下載 PDF） */}
+      <a href={asset('/manual/')} className="flex min-h-11 items-center justify-between rounded-lg px-3 py-2 text-[15px] text-ink hover:bg-paper">
+        <span>操作手冊</span><span aria-hidden className="text-xs text-muted">📖</span>
+      </a>
       {me.is_director && (
         <>
           <div className="mt-3 px-3 text-xs font-semibold text-muted">管理</div>
