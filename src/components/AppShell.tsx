@@ -53,7 +53,10 @@ export function AppShell({ me, unread, pending, children }: { me: Me; unread: nu
         <div className="mt-auto border-t border-line px-3 pt-4 text-sm">
           <div className="font-semibold">{me.name}</div>
           <div className="text-xs text-muted">{roles}</div>
-          <div className="mt-2"><SignOutButton /></div>
+          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+            <Link href="/auth/set-password" className="text-sm text-accent underline-offset-2 hover:underline">變更密碼</Link>
+            <SignOutButton />
+          </div>
         </div>
       </aside>
       <Suspense fallback={null}>
@@ -72,7 +75,10 @@ export function AppShell({ me, unread, pending, children }: { me: Me; unread: nu
         }>
           <div className="px-3 pb-3">
             {nav}
-            <div className="mt-2 px-3"><SignOutButton className="min-h-11 text-sm text-accent" /></div>
+            <div className="mt-2 flex gap-6 px-3">
+              <Link href="/auth/set-password" className="inline-flex min-h-11 items-center text-sm text-accent">變更密碼</Link>
+              <SignOutButton className="min-h-11 text-sm text-accent" />
+            </div>
           </div>
         </MobileNav>
       </Suspense>
