@@ -8,6 +8,7 @@ import { ActionForm, Submit } from '@/components/ActionForm';
 import { dueLabel, fmtDate, fmtDateTime, todayTaipei } from '@/lib/format';
 import { ReportPanel } from './ReportPanel';
 import { ResubmitForm } from './ResubmitForm';
+import { EditTaskForm } from './EditTaskForm';
 import type { TaskRow } from '@/lib/types';
 import { deriveFlow, decisionNote, roleOf, FLOW_TONE, type DecisionLite } from '@/lib/flow';
 import { setRisk, approveTask, assignTask, cancelTask, changeDue, closeTask, nudgeTask, proposeToDirector, resolveDecision } from '../actions';
@@ -83,6 +84,11 @@ async function TaskDetail({ params, searchParams }: { params: Promise<{ id: stri
   const nameOf = (pid: string | null | undefined) => (named ?? []).find((p) => p.id === pid)?.name ?? '—';
   const today = todayTaipei();
   const canReport = isMember || canManage;
+  // 修改內容：提報人改自己待核定的草案／主任、組長改未結案工作／主責人改正式交辦工作的說明（資料庫 task_edit 再檢查）
+  const editMode: 'draft' | 'manager' | 'owner' | null = closed ? null
+    : canManage ? 'manager'
+    : isCreator && t.approval_status === '待主任核定' ? 'draft'
+    : approved && t.owner_person_id === me.person_id ? 'owner' : null;
   const reportMode = approved && !closed && canReport ? (t.status === '待主管核定' ? 'closePending' : 'active')
     : closed && canReport ? 'locked' : 'hidden';
   const lockReason = closed ? `這項工作已${t.status === '已結案' ? '核定結案' : '取消'}，不能再回報。`
@@ -208,6 +214,8 @@ async function TaskDetail({ params, searchParams }: { params: Promise<{ id: stri
           {t.cross_support && <div className="mt-3"><div className="text-xs text-muted">跨組協作／專業支援</div><p>{t.cross_support}</p></div>}
           {t.notes && <div className="mt-3"><div className="text-xs text-muted">說明</div><p className="whitespace-pre-wrap">{t.notes}</p></div>}
           {t.evidence_restricted && <p className="mt-3 rounded-lg bg-warn-soft px-3 py-2 text-sm text-warn">成果文件屬「受限索引」：連結需另行授權才能調閱。</p>}
+          {editMode && <EditTaskForm mode={editMode} taskId={t.id} title={t.title} notes={t.notes}
+                                     priority={t.priority} due={t.due_on} updatedAt={t.updated_at} today={today} />}
           {!!links?.length && (
             <div className="mt-4">
               <div className="text-xs text-muted">關聯評鑑指標</div>
