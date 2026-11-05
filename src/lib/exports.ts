@@ -62,13 +62,20 @@ export async function exportTasks(sp: TaskSearch) {
 /** 批量匯入範本：第一張「工作匯入」填資料；其餘為可填的組別、同仁、指標與允許值 */
 export async function downloadImportTemplate() {
   const { me, sb } = session();
-  if (!me.is_director && !hasRole(me, 'dept_lead')) throw new Error('只有主任與組長可以批量匯入');
-  const [{ data: depts }, { data: people }, { data: inds }] = await Promise.all([
+  // 主任／組長：批量匯入；一般同仁：批量提報（組別只能填自己的組或評鑑統籌組別，主責人只能填自己或留空，最多 100 列）
+  const manager = me.is_director || hasRole(me, 'dept_lead');
+  const [{ data: allDepts }, { data: assignable }, { data: inds }] = await Promise.all([
     sb.from('departments').select('id,name').eq('status', '啟用').order('id'),
     sb.rpc('assignable_people'),
     sb.from('evaluation_indicators').select('id,name').order('official_seq').order('id'),
   ]);
-  const deptName = new Map((depts ?? []).map((d) => [d.id, d.name]));
+  const myDepts = new Set([me.department_id, ...me.roles.filter((r) => r.role === 'eval_coordinator' && r.department_id).map((r) => r.department_id as string)]);
+  const depts = manager ? allDepts : (allDepts ?? []).filter((d) => myDepts.has(d.id));
+  type P = { id: string; name: string; title: string; department_id: string };
+  const people: P[] = manager || (assignable ?? []).length
+    ? ((assignable ?? []) as P[])
+    : [{ id: me.person_id, name: me.name, title: me.title ?? '', department_id: me.department_id }];
+  const deptName = new Map((allDepts ?? []).map((d) => [d.id, d.name]));
   const firstDept = depts?.[0]?.id ?? 'D01';
   await downloadXlsx([
     { sheet: '工作匯入', data: [IMPORT_COLUMNS.map((c) => headerCell(c.header)),
@@ -78,13 +85,16 @@ export async function downloadImportTemplate() {
         ['重要', '匯入的工作一律是「待主任核定」草案，不會通知任何人；主任到「決策佇列」核定後才成為正式交辦。'],
         ['重要', '任一列有錯誤，整批都不會寫入；請依預覽畫面的錯誤清單修正後重新上傳。'],
         ['重要', '留職停薪、離職或尚未確認在職的同仁，不能填為主責人或協作人員。'],
-        ['上限', '一次最多 500 列。']], columns: [{ width: 14 }, { width: 80 }] },
+        ...(manager ? [] : [
+          ['同仁提報', '組別只能填「可填組別」工作表裡的組別；主責人只能填自己或留空（由主任核定時指定）；協作人員可填同仁姓名。'],
+        ]),
+        ['上限', manager ? '一次最多 500 列。' : '一次最多 100 列，超過請分批。']], columns: [{ width: 14 }, { width: 80 }] },
     { sheet: '可填組別', data: [[headerCell('組別ID'), headerCell('組別名稱')], ...(depts ?? []).map((d) => [d.id, d.name])], columns: [{ width: 10 }, { width: 20 }] },
     { sheet: '可指派同仁', data: [[headerCell('人員ID'), headerCell('姓名'), headerCell('職稱'), headerCell('組別')],
-        ...((people ?? []) as { id: string; name: string; title: string; department_id: string }[]).map((p) => [p.id, p.name, p.title, deptName.get(p.department_id) ?? p.department_id])],
+        ...people.map((p) => [p.id, p.name, p.title, deptName.get(p.department_id) ?? p.department_id])],
       columns: [{ width: 10 }, { width: 12 }, { width: 14 }, { width: 12 }] },
     { sheet: '評鑑指標', data: [[headerCell('指標編號'), headerCell('指標名稱')], ...(inds ?? []).map((i) => [i.id, i.name])], columns: [{ width: 10 }, { width: 60 }] },
-  ], '工作批量匯入範本.xlsx');
+  ], manager ? '工作批量匯入範本.xlsx' : '工作批量提報範本.xlsx');
 }
 
 /** 週報／月報（主任、組長） */
