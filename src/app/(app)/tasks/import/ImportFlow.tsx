@@ -29,7 +29,7 @@ function IssueTable({ items, tone }: { items: Issue[]; tone: 'danger' | 'warn' }
   );
 }
 
-export function ImportFlow({ isDirector }: { isDirector: boolean }) {
+export function ImportFlow({ isDirector, maxRows = 500 }: { isDirector: boolean; maxRows?: number }) {
   const [state, action] = useActionState<ImportState, FormData>(importStep, null);
 
   if (state && state.stage === 'done') {
@@ -54,7 +54,7 @@ export function ImportFlow({ isDirector }: { isDirector: boolean }) {
     <div className="space-y-4">
       <form action={action} className="card flex flex-wrap items-end gap-3 p-4">
         <div className="grow">
-          <label className="label" htmlFor="file">上傳填好的 Excel（.xlsx，2MB 以內，最多 500 列）</label>
+          <label className="label" htmlFor="file">上傳填好的 Excel（.xlsx，2MB 以內，最多 {maxRows} 列）</label>
           <input id="file" name="file" type="file" required accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" className="field" />
         </div>
         <Btn step="preview">上傳並檢查</Btn>
