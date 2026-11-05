@@ -3,7 +3,7 @@
 import { downloadXlsx, headerCell } from './download';
 import { getSession, hasRole } from './session';
 import { IMPORT_COLUMNS } from './excel';
-import { applyTaskFilters, TASK_FILTERS, type TaskSearch } from './taskFilters';
+import { applyTaskFilters, collabTaskIds, PERSON_ROLES, TASK_FILTERS, type TaskSearch } from './taskFilters';
 import { buildReport, periods, type Period } from './report';
 import type { TaskRow } from './types';
 
@@ -39,8 +39,9 @@ const TASK_COLUMNS: { header: string; width: number; get: (t: TaskRow) => string
 export async function exportTasks(sp: TaskSearch) {
   const { me, sb } = session();
   let q = sb.from('v_tasks').select('*').order('due_on', { ascending: true, nullsFirst: false }).order('id').limit(5000);
-  q = applyTaskFilters(q, sp, me);
+  q = applyTaskFilters(q, sp, me, await collabTaskIds(sb, sp));
   const { data, error } = await q;
+  const personName = sp.person ? (await sb.from('people').select('name').eq('id', sp.person).maybeSingle<{ name: string }>()).data?.name ?? sp.person : '';
   if (error) throw new Error(`匯出失敗：${error.message}`);
   const rows = (data ?? []) as TaskRow[];
   await sb.rpc('audit_export', { p_table: 'tasks', p_count: rows.length, p_filters: Object.fromEntries(Object.entries(sp).filter(([, v]) => v)) });
@@ -48,7 +49,7 @@ export async function exportTasks(sp: TaskSearch) {
     ['匯出時間', now()],
     ['匯出者', me.name],
     ['篩選', sp.filter ? (TASK_FILTERS[sp.filter] ?? sp.filter) : '全部'],
-    ['其他條件', [sp.department && `組別 ${sp.department}`, sp.status && `狀態 ${sp.status}`, sp.indicator && `指標 ${sp.indicator}`, sp.q && `關鍵字「${sp.q}」`].filter(Boolean).join('、') || '無'],
+    ['其他條件', [sp.person && `人員 ${personName}（${PERSON_ROLES[sp.prole ?? ''] ?? '主責或協作'}）`, sp.department && `組別 ${sp.department}`, sp.status && `狀態 ${sp.status}`, sp.indicator && `指標 ${sp.indicator}`, sp.q && `關鍵字「${sp.q}」`].filter(Boolean).join('、') || '無'],
     ['筆數', rows.length],
     ['提醒', '本檔只含你有權限查看的工作；內部資料請勿外流，用畢請刪除。'],
   ];

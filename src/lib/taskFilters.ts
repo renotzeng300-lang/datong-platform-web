@@ -7,13 +7,26 @@ export const TASK_FILTERS: Record<string, string> = {
   handoff: '待交接', formal: '進行中正式工作', mine: '我負責的',
 };
 
-export type TaskSearch = { filter?: string; department?: string; owner?: string; indicator?: string; status?: string; q?: string };
+export type TaskSearch = { filter?: string; department?: string; owner?: string; indicator?: string; status?: string; q?: string;
+  /** 依人員搜尋：person＝人員ID；prole＝owner（只看主責）／collab（只看協作）／空白（主責或協作） */
+  person?: string; prole?: string };
+
+export const PERSON_ROLES: Record<string, string> = { '': '主責或協作', owner: '只看主責', collab: '只看協作' };
+
+/** 依人員搜尋時，先查出此人擔任協作的工作編號（清單與匯出共用） */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function collabTaskIds(sb: any, sp: TaskSearch): Promise<string[]> {
+  if (!sp.person || sp.prole === 'owner') return [];
+  const { data } = await sb.from('task_collaborators').select('task_id').eq('person_id', sp.person).is('removed_at', null).limit(2000);
+  return [...new Set(((data ?? []) as { task_id: string }[]).map((r) => r.task_id))];
+}
+const safeId = (v: string) => v.replace(/[^\w-]/g, '');
 
 const OPEN = '("已結案","已取消")';
 const FORMAL = ['已核定', '免核定'];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function applyTaskFilters<Q extends Record<string, any>>(q: Q, sp: TaskSearch, me: Me): Q {
+export function applyTaskFilters<Q extends Record<string, any>>(q: Q, sp: TaskSearch, me: Me, collabIds: string[] = []): Q {
   let x = q as any; // eslint-disable-line @typescript-eslint/no-explicit-any
   switch (sp.filter) {
     case 'overdue': x = x.eq('is_overdue', true).in('approval_status', FORMAL); break;
@@ -30,6 +43,14 @@ export function applyTaskFilters<Q extends Record<string, any>>(q: Q, sp: TaskSe
   }
   if (sp.department) x = x.eq('department_id', sp.department);
   if (sp.owner) x = x.eq('owner_person_id', sp.owner);
+  if (sp.person) {
+    const pid = safeId(sp.person);
+    const ids = collabIds.map(safeId).filter(Boolean);
+    const inIds = `id.in.(${ids.length ? ids.join(',') : '__none__'})`;
+    if (sp.prole === 'owner') x = x.eq('owner_person_id', pid);
+    else if (sp.prole === 'collab') x = x.or(inIds);
+    else x = x.or(`owner_person_id.eq.${pid},${inIds}`);
+  }
   if (sp.indicator) x = x.contains('indicator_ids', [sp.indicator]);
   if (sp.status) x = x.eq('status', sp.status);
   if (sp.q) x = x.ilike('title', `%${sp.q.replace(/[%_]/g, '')}%`);
@@ -39,7 +60,7 @@ export function applyTaskFilters<Q extends Record<string, any>>(q: Q, sp: TaskSe
 /** 把目前的篩選條件轉成網址參數（給「匯出」按鈕用） */
 export function searchToQuery(sp: TaskSearch): string {
   const u = new URLSearchParams();
-  for (const k of ['filter', 'department', 'owner', 'indicator', 'status', 'q'] as const) if (sp[k]) u.set(k, sp[k]!);
+  for (const k of ['filter', 'department', 'owner', 'person', 'prole', 'indicator', 'status', 'q'] as const) if (sp[k]) u.set(k, sp[k]!);
   const s = u.toString();
   return s ? `?${s}` : '';
 }
