@@ -85,10 +85,13 @@ async function TaskDetail({ params, searchParams }: { params: Promise<{ id: stri
   const today = todayTaipei();
   const canReport = isMember || canManage;
   // 修改內容：提報人改自己待核定的草案／主任、組長改未結案工作／主責人改正式交辦工作的說明（資料庫 task_edit 再檢查）
-  const editMode: 'draft' | 'manager' | 'owner' | null = closed ? null
-    : canManage ? 'manager'
-    : isCreator && t.approval_status === '待主任核定' ? 'draft'
-    : approved && t.owner_person_id === me.person_id ? 'owner' : null;
+  const canEdit = !closed && (canManage || (isCreator && t.approval_status === '待主任核定') || (approved && t.owner_person_id === me.person_id));
+  const [{ data: editDepts }, { data: editPeople }] = canEdit
+    ? await Promise.all([
+        sb.from('departments').select('id,name').eq('status', '啟用').order('id'),
+        sb.rpc('people_picker'),
+      ])
+    : [{ data: [] }, { data: [] }];
   const reportMode = approved && !closed && canReport ? (t.status === '待主管核定' ? 'closePending' : 'active')
     : closed && canReport ? 'locked' : 'hidden';
   const lockReason = closed ? `這項工作已${t.status === '已結案' ? '核定結案' : '取消'}，不能再回報。`
@@ -214,8 +217,6 @@ async function TaskDetail({ params, searchParams }: { params: Promise<{ id: stri
           {t.cross_support && <div className="mt-3"><div className="text-xs text-muted">跨組協作／專業支援</div><p>{t.cross_support}</p></div>}
           {t.notes && <div className="mt-3"><div className="text-xs text-muted">說明</div><p className="whitespace-pre-wrap">{t.notes}</p></div>}
           {t.evidence_restricted && <p className="mt-3 rounded-lg bg-warn-soft px-3 py-2 text-sm text-warn">成果文件屬「受限索引」：連結需另行授權才能調閱。</p>}
-          {editMode && <EditTaskForm mode={editMode} taskId={t.id} title={t.title} notes={t.notes}
-                                     priority={t.priority} due={t.due_on} updatedAt={t.updated_at} today={today} />}
           {!!links?.length && (
             <div className="mt-4">
               <div className="text-xs text-muted">關聯評鑑指標</div>
@@ -224,6 +225,10 @@ async function TaskDetail({ params, searchParams }: { params: Promise<{ id: stri
               </ul>
             </div>
           )}
+          {canEdit && <EditTaskForm formal={approved} isManager={canManage}
+                                    people={(editPeople ?? []) as { id: string; name: string; title: string | null; department_id: string }[]}
+                                    depts={(editDepts ?? []) as { id: string; name: string }[]}
+                                    task={{ ...t, collaborators: collabIds, indicator_ids: (links ?? []).map((l) => l.indicator_id) }} />}
         </section>
 
         <div className="space-y-4">
