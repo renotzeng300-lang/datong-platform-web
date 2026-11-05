@@ -29,7 +29,7 @@ async function Tasks({ searchParams }: { searchParams: Promise<TaskSearch> }) {
         </div>
         <div className="flex flex-wrap gap-2">
           <DownloadButton job={{ kind: 'tasks', search: sp }}>⬇ 匯出 Excel</DownloadButton>
-          {canManage && <Link href="/tasks/import" className="btn-ghost">⬆ 批量匯入</Link>}
+          {canCreate && <Link href="/tasks/import" className="btn-ghost">{canManage ? '⬆ 批量匯入' : '⬆ 批量提報'}</Link>}
           {canCreate && <Link href="/tasks/new" className="btn-primary">{canManage ? '＋ 新增工作' : '＋ 提報工作'}</Link>}
         </div>
       </header>
