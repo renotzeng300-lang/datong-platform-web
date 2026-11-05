@@ -6,7 +6,7 @@ import { requireMe, hasRole } from '@/lib/session';
 import { Badge } from '@/components/Badge';
 import { dueLabel, fmtDate, TASK_STATUSES } from '@/lib/format';
 import type { TaskRow } from '@/lib/types';
-import { applyTaskFilters, searchToQuery, TASK_FILTERS, type TaskSearch } from '@/lib/taskFilters';
+import { applyTaskFilters, collabTaskIds, PERSON_ROLES, searchToQuery, TASK_FILTERS, type TaskSearch } from '@/lib/taskFilters';
 
 const FILTERS = TASK_FILTERS;
 
@@ -14,8 +14,11 @@ async function Tasks({ searchParams }: { searchParams: Promise<TaskSearch> }) {
   const sp = await searchParams;
   const { me, sb } = await requireMe();
   let q = sb.from('v_tasks').select('*').order('due_on', { ascending: true, nullsFirst: false }).order('id').limit(500);
-  q = applyTaskFilters(q, sp, me);
-  const [{ data, error }, { data: depts }] = await Promise.all([q, sb.from('departments').select('id,name').order('id')]);
+  q = applyTaskFilters(q, sp, me, await collabTaskIds(sb, sp));
+  const [{ data, error }, { data: depts }, { data: ppl }] = await Promise.all([q, sb.from('departments').select('id,name').order('id'),
+    sb.from('people').select('id,name,department_id,employment_status').neq('employment_status', '離職').order('department_id').order('name')]);
+  const people = (ppl ?? []) as { id: string; name: string; department_id: string; employment_status: string }[];
+  const personName = people.find((p) => p.id === sp.person)?.name;
   const rows = (data ?? []) as TaskRow[];
   const canCreate = true; // 所有在職同仁可「提報」；主任／組長可直接交辦（伺服器端判斷）
   const canManage = me.is_director || hasRole(me, 'dept_lead');
@@ -25,7 +28,7 @@ async function Tasks({ searchParams }: { searchParams: Promise<TaskSearch> }) {
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="h1">工作管理</h1>
-          <p className="text-sm text-muted">{sp.filter ? `篩選：${FILTERS[sp.filter] ?? sp.filter}` : '你有權限看到的所有工作'}・共 {rows.length} 筆</p>
+          <p className="text-sm text-muted">{sp.filter ? `篩選：${FILTERS[sp.filter] ?? sp.filter}` : '你有權限看到的所有工作'}{sp.person && <>・人員：<b>{personName ?? sp.person}</b>（{PERSON_ROLES[sp.prole ?? ''] ?? '主責或協作'}）</>}・共 {rows.length} 筆</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <DownloadButton job={{ kind: 'tasks', search: sp }}>⬇ 匯出 Excel</DownloadButton>
@@ -37,7 +40,7 @@ async function Tasks({ searchParams }: { searchParams: Promise<TaskSearch> }) {
       {(() => {
         // 切換快速篩選時保留關鍵字、組別、狀態等其他條件；有其他條件時明確提示並提供清除
         const others = { ...sp, filter: undefined };
-        const kept = (['q', 'department', 'status', 'indicator', 'owner'] as const).filter((k) => sp[k]);
+        const kept = (['q', 'person', 'department', 'status', 'indicator', 'owner'] as const).filter((k) => sp[k]);
         const chip = (active: boolean) => `inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-full border px-4 text-sm ${active ? 'border-accent bg-accent font-semibold text-on-accent' : 'border-line bg-card hover:border-accent'}`;
         return (
           <nav aria-label="快速篩選" className="space-y-2">
@@ -49,7 +52,7 @@ async function Tasks({ searchParams }: { searchParams: Promise<TaskSearch> }) {
             </ul>
             {kept.length > 0 && (
               <p className="text-xs text-muted" data-kept-filters>
-                切換快速篩選時會保留：{kept.map((k) => ({ q: '關鍵字', department: '組別', status: '狀態', indicator: '指標', owner: '主責' })[k]).join('、')}・
+                切換快速篩選時會保留：{kept.map((k) => ({ q: '關鍵字', person: '人員', department: '組別', status: '狀態', indicator: '指標', owner: '主責' })[k]).join('、')}・
                 <Link href={sp.filter ? `/tasks?filter=${sp.filter}` : '/tasks'} className="inline-flex min-h-11 items-center px-1 text-accent underline">清除其他條件</Link>
               </p>
             )}
@@ -60,6 +63,18 @@ async function Tasks({ searchParams }: { searchParams: Promise<TaskSearch> }) {
       <form method="get" className="card flex flex-wrap items-end gap-3 p-3">
         {sp.filter && <input type="hidden" name="filter" value={sp.filter} />}
         <div className="grow"><label className="label" htmlFor="q">關鍵字</label><input id="q" name="q" defaultValue={sp.q} className="field" placeholder="工作名稱" /></div>
+        <div><label className="label" htmlFor="person">人員</label>
+          <select id="person" name="person" defaultValue={sp.person ?? ''} className="field">
+            <option value="">全部</option>
+            {(depts ?? []).map((d) => {
+              const list = people.filter((p) => p.department_id === d.id);
+              return list.length ? <optgroup key={d.id} label={d.name}>{list.map((p) => <option key={p.id} value={p.id}>{p.name}{p.employment_status !== '在職' ? `（${p.employment_status}）` : ''}</option>)}</optgroup> : null;
+            })}
+          </select></div>
+        <div><label className="label" htmlFor="prole">人員角色</label>
+          <select id="prole" name="prole" defaultValue={sp.prole ?? ''} className="field">
+            {Object.entries(PERSON_ROLES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+          </select></div>
         <div><label className="label" htmlFor="department">組別</label>
           <select id="department" name="department" defaultValue={sp.department ?? ''} className="field">
             <option value="">全部</option>{(depts ?? []).map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
