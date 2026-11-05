@@ -16,8 +16,8 @@ async function Tasks({ searchParams }: { searchParams: Promise<TaskSearch> }) {
   let q = sb.from('v_tasks').select('*').order('due_on', { ascending: true, nullsFirst: false }).order('id').limit(500);
   q = applyTaskFilters(q, sp, me, await collabTaskIds(sb, sp));
   const [{ data, error }, { data: depts }, { data: ppl }] = await Promise.all([q, sb.from('departments').select('id,name').order('id'),
-    sb.from('people').select('id,name,department_id,employment_status').neq('employment_status', '離職').order('department_id').order('name')]);
-  const people = (ppl ?? []) as { id: string; name: string; department_id: string; employment_status: string }[];
+    sb.rpc('people_picker')]);
+  const people = ((ppl ?? []) as { id: string; name: string; department_id: string }[]).map((p) => ({ ...p, employment_status: '在職' }));
   const personName = people.find((p) => p.id === sp.person)?.name;
   const rows = (data ?? []) as TaskRow[];
   const canCreate = true; // 所有在職同仁可「提報」；主任／組長可直接交辦（伺服器端判斷）

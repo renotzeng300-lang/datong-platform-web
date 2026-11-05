@@ -178,15 +178,11 @@ export async function getReportState(id: string): Promise<{ viewable: boolean; s
   return { viewable: true, status: data.status, approvalStatus: data.approval_status, updatedAt: data.updated_at };
 }
 
-/** 修改工作內容：名稱、說明、優先度（提報中的草案也可改建議期限）；權限與可改欄位由資料庫 task_edit 判斷 */
-export async function editTask(_: ActionResult, f: FormData): Promise<ActionResult> {
+/** 修改工作內容：只送出有改的欄位（changes），權限、在職、必填規則由資料庫 task_edit 判斷 */
+export async function editTaskFields(id: string, changes: Record<string, unknown>, reason: string, expectedUpdatedAt: string): Promise<ActionResult> {
   const sb = supabaseBrowser();
-  const notes = f.get('notes');
   const { error } = await sb.rpc('task_edit', {
-    p_task: str(f, 'id'), p_title: str(f, 'title'),
-    p_notes: typeof notes === 'string' ? notes : null,          // 空字串＝清空說明，所以不用 str()
-    p_priority: str(f, 'priority'), p_due: str(f, 'due'), p_reason: str(f, 'reason'),
-    p_expected_updated_at: str(f, 'expected_updated_at'),
+    p_task: id, p_changes: changes, p_reason: reason.trim() || null, p_expected_updated_at: expectedUpdatedAt,
   });
   if (error) return fromError(error, '');
   refresh();
