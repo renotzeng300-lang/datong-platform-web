@@ -6,7 +6,7 @@ import { requireMe, hasRole } from '@/lib/session';
 import { Badge } from '@/components/Badge';
 import { dueLabel, fmtDate, TASK_STATUSES } from '@/lib/format';
 import type { TaskRow } from '@/lib/types';
-import { applyTaskFilters, collabTaskIds, PERSON_ROLES, searchToQuery, TASK_FILTERS, type TaskSearch } from '@/lib/taskFilters';
+import { applyTaskFilters, collabTaskIds, DATE_FIELDS, dateRangeLabel, PERSON_ROLES, searchToQuery, TASK_FILTERS, type TaskSearch } from '@/lib/taskFilters';
 
 const FILTERS = TASK_FILTERS;
 
@@ -19,6 +19,7 @@ async function Tasks({ searchParams }: { searchParams: Promise<TaskSearch> }) {
     sb.rpc('people_picker')]);
   const people = ((ppl ?? []) as { id: string; name: string; department_id: string }[]).map((p) => ({ ...p, employment_status: '在職' }));
   const personName = people.find((p) => p.id === sp.person)?.name;
+  const dateLabel = dateRangeLabel(sp);
   const rows = (data ?? []) as TaskRow[];
   const canCreate = true; // 所有在職同仁可「提報」；主任／組長可直接交辦（伺服器端判斷）
   const canManage = me.is_director || hasRole(me, 'dept_lead');
@@ -28,7 +29,7 @@ async function Tasks({ searchParams }: { searchParams: Promise<TaskSearch> }) {
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="h1">工作管理</h1>
-          <p className="text-sm text-muted">{sp.filter ? `篩選：${FILTERS[sp.filter] ?? sp.filter}` : '你有權限看到的所有工作'}{sp.person && <>・人員：<b>{personName ?? sp.person}</b>（{PERSON_ROLES[sp.prole ?? ''] ?? '主責或協作'}）</>}・共 {rows.length} 筆</p>
+          <p className="text-sm text-muted">{sp.filter ? `篩選：${FILTERS[sp.filter] ?? sp.filter}` : '你有權限看到的所有工作'}{sp.person && <>・人員：<b>{personName ?? sp.person}</b>（{PERSON_ROLES[sp.prole ?? ''] ?? '主責或協作'}）</>}{dateLabel && <>・<b>{dateLabel}</b></>}・共 {rows.length} 筆</p>
         </div>
         <div className="flex flex-wrap gap-2">
           <DownloadButton job={{ kind: 'tasks', search: sp }}>⬇ 匯出 Excel</DownloadButton>
@@ -40,7 +41,7 @@ async function Tasks({ searchParams }: { searchParams: Promise<TaskSearch> }) {
       {(() => {
         // 切換快速篩選時保留關鍵字、組別、狀態等其他條件；有其他條件時明確提示並提供清除
         const others = { ...sp, filter: undefined };
-        const kept = (['q', 'person', 'department', 'status', 'indicator', 'owner'] as const).filter((k) => sp[k]);
+        const kept = (['q', 'person', 'department', 'status', 'indicator', 'owner', 'dfrom', 'dto'] as const).filter((k) => sp[k]);
         const chip = (active: boolean) => `inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-full border px-4 text-sm ${active ? 'border-accent bg-accent font-semibold text-on-accent' : 'border-line bg-card hover:border-accent'}`;
         return (
           <nav aria-label="快速篩選" className="space-y-2">
@@ -52,7 +53,7 @@ async function Tasks({ searchParams }: { searchParams: Promise<TaskSearch> }) {
             </ul>
             {kept.length > 0 && (
               <p className="text-xs text-muted" data-kept-filters>
-                切換快速篩選時會保留：{kept.map((k) => ({ q: '關鍵字', person: '人員', department: '組別', status: '狀態', indicator: '指標', owner: '主責' })[k]).join('、')}・
+                切換快速篩選時會保留：{kept.map((k) => ({ q: '關鍵字', person: '人員', department: '組別', status: '狀態', indicator: '指標', owner: '主責', dfrom: '日期區間', dto: '日期區間' })[k]).filter((v, i, a) => a.indexOf(v) === i).join('、')}・
                 <Link href={sp.filter ? `/tasks?filter=${sp.filter}` : '/tasks'} className="inline-flex min-h-11 items-center px-1 text-accent underline">清除其他條件</Link>
               </p>
             )}
@@ -84,6 +85,12 @@ async function Tasks({ searchParams }: { searchParams: Promise<TaskSearch> }) {
             <option value="">全部</option>{TASK_STATUSES.map((s) => <option key={s}>{s}</option>)}
           </select></div>
         <div><label className="label" htmlFor="indicator">指標</label><input id="indicator" name="indicator" defaultValue={sp.indicator} className="field w-28" placeholder="例 4101" /></div>
+        <div><label className="label" htmlFor="dfield">日期依據</label>
+          <select id="dfield" name="dfield" defaultValue={sp.dfield ?? 'due'} className="field">
+            {Object.entries(DATE_FIELDS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+          </select></div>
+        <div><label className="label" htmlFor="dfrom">日期從</label><input id="dfrom" name="dfrom" type="date" defaultValue={sp.dfrom} className="field" /></div>
+        <div><label className="label" htmlFor="dto">到</label><input id="dto" name="dto" type="date" defaultValue={sp.dto} min={sp.dfrom} className="field" /></div>
         <button className="btn-ghost">搜尋</button>
       </form>
 
