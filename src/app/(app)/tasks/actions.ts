@@ -188,3 +188,15 @@ export async function editTaskFields(id: string, changes: Record<string, unknown
   refresh();
   return fromError(null, '已儲存修改，並記錄在「進度與核定歷程」。');
 }
+
+/** 撤銷結案決定：review＝回到待主管核定重新決定；reopen＝重新開啟回到進行中（權限與可否撤銷由資料庫 task_reopen 判斷） */
+export async function reopenTask(_: ActionResult, f: FormData): Promise<ActionResult> {
+  const sb = supabaseBrowser();
+  const mode = str(f, 'mode');
+  const { error } = await sb.rpc('task_reopen', {
+    p_task: str(f, 'id'), p_mode: mode, p_reason: str(f, 'reason'), p_expected_updated_at: str(f, 'expected_updated_at'),
+  });
+  if (error) return fromError(error, '');
+  refresh();
+  return fromError(null, mode === 'reopen' ? '已重新開啟，工作回到「進行中」，已通知主責人。' : '已撤銷，工作回到「待主管核定」，請在上方重新核定或退回。');
+}
