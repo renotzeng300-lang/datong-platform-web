@@ -3,7 +3,7 @@
 import { downloadXlsx, headerCell } from './download';
 import { getSession, hasRole } from './session';
 import { IMPORT_COLUMNS } from './excel';
-import { applyTaskFilters, collabTaskIds, PERSON_ROLES, TASK_FILTERS, type TaskSearch } from './taskFilters';
+import { applyTaskFilters, collabTaskIds, dateRangeLabel, PERSON_ROLES, TASK_FILTERS, type TaskSearch } from './taskFilters';
 import { buildReport, periods, type Period } from './report';
 import type { TaskRow } from './types';
 
@@ -49,7 +49,7 @@ export async function exportTasks(sp: TaskSearch) {
     ['匯出時間', now()],
     ['匯出者', me.name],
     ['篩選', sp.filter ? (TASK_FILTERS[sp.filter] ?? sp.filter) : '全部'],
-    ['其他條件', [sp.person && `人員 ${personName}（${PERSON_ROLES[sp.prole ?? ''] ?? '主責或協作'}）`, sp.department && `組別 ${sp.department}`, sp.status && `狀態 ${sp.status}`, sp.indicator && `指標 ${sp.indicator}`, sp.q && `關鍵字「${sp.q}」`].filter(Boolean).join('、') || '無'],
+    ['其他條件', [sp.person && `人員 ${personName}（${PERSON_ROLES[sp.prole ?? ''] ?? '主責或協作'}）`, sp.department && `組別 ${sp.department}`, sp.status && `狀態 ${sp.status}`, sp.indicator && `指標 ${sp.indicator}`, sp.q && `關鍵字「${sp.q}」`, dateRangeLabel(sp)].filter(Boolean).join('、') || '無'],
     ['筆數', rows.length],
     ['提醒', '本檔只含你有權限查看的工作；內部資料請勿外流，用畢請刪除。'],
   ];

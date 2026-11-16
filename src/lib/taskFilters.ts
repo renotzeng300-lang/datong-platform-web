@@ -9,7 +9,26 @@ export const TASK_FILTERS: Record<string, string> = {
 
 export type TaskSearch = { filter?: string; department?: string; owner?: string; indicator?: string; status?: string; q?: string;
   /** 依人員搜尋：person＝人員ID；prole＝owner（只看主責）／collab（只看協作）／空白（主責或協作） */
-  person?: string; prole?: string };
+  person?: string; prole?: string;
+  /** 日期區間：dfield＝依哪個日期（見 DATE_FIELDS）；dfrom／dto＝起訖日（YYYY-MM-DD，含當天，可只填一邊） */
+  dfield?: string; dfrom?: string; dto?: string };
+
+export const DATE_FIELDS: Record<string, string> = {
+  due: '期限', created: '建立日', followup: '下次追蹤日', completed: '回報完成日', closed: '結案日',
+};
+const DATE_COLUMN: Record<string, string> = {
+  due: 'due_on', followup: 'next_followup_on', completed: 'completed_on', closed: 'closed_on',
+};
+const isYmd = (v?: string) => !!v && /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(v));
+/** 例：「期限 2026-11-01～2026-11-30」；沒有日期條件時回傳空字串 */
+export function dateRangeLabel(sp: TaskSearch): string {
+  const from = isYmd(sp.dfrom) ? sp.dfrom : '';
+  const to = isYmd(sp.dto) ? sp.dto : '';
+  if (!from && !to) return '';
+  const name = DATE_FIELDS[sp.dfield ?? ''] ?? DATE_FIELDS.due;
+  return `${name} ${from || '不限'}～${to || '不限'}`;
+}
+const nextDay = (ymd: string) => { const d = new Date(`${ymd}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + 1); return d.toISOString().slice(0, 10); };
 
 export const PERSON_ROLES: Record<string, string> = { '': '主責或協作', owner: '只看主責', collab: '只看協作' };
 
@@ -54,13 +73,27 @@ export function applyTaskFilters<Q extends Record<string, any>>(q: Q, sp: TaskSe
   if (sp.indicator) x = x.contains('indicator_ids', [sp.indicator]);
   if (sp.status) x = x.eq('status', sp.status);
   if (sp.q) x = x.ilike('title', `%${sp.q.replace(/[%_]/g, '')}%`);
+  // 日期區間（含起訖當天）；建立日是時間戳記，以臺灣時間整天計算
+  const from = isYmd(sp.dfrom) ? sp.dfrom! : null;
+  const to = isYmd(sp.dto) ? sp.dto! : null;
+  if (from || to) {
+    const field = DATE_FIELDS[sp.dfield ?? ''] ? sp.dfield! : 'due';
+    if (field === 'created') {
+      if (from) x = x.gte('created_at', `${from}T00:00:00+08:00`);
+      if (to) x = x.lt('created_at', `${nextDay(to)}T00:00:00+08:00`);
+    } else {
+      const col = DATE_COLUMN[field];
+      if (from) x = x.gte(col, from);
+      if (to) x = x.lte(col, to);
+    }
+  }
   return x as Q;
 }
 
 /** 把目前的篩選條件轉成網址參數（給「匯出」按鈕用） */
 export function searchToQuery(sp: TaskSearch): string {
   const u = new URLSearchParams();
-  for (const k of ['filter', 'department', 'owner', 'person', 'prole', 'indicator', 'status', 'q'] as const) if (sp[k]) u.set(k, sp[k]!);
+  for (const k of ['filter', 'department', 'owner', 'person', 'prole', 'indicator', 'status', 'q', 'dfield', 'dfrom', 'dto'] as const) if (sp[k]) u.set(k, sp[k]!);
   const s = u.toString();
   return s ? `?${s}` : '';
 }
