@@ -11,7 +11,7 @@ import { ResubmitForm } from './ResubmitForm';
 import { EditTaskForm } from './EditTaskForm';
 import type { TaskRow } from '@/lib/types';
 import { deriveFlow, decisionNote, roleOf, FLOW_TONE, type DecisionLite } from '@/lib/flow';
-import { setRisk, approveTask, assignTask, cancelTask, changeDue, closeTask, nudgeTask, proposeToDirector, resolveDecision } from '../actions';
+import { setRisk, approveTask, assignTask, cancelTask, changeDue, closeTask, nudgeTask, proposeToDirector, reopenTask, resolveDecision } from '../actions';
 
 type Update = { id: number; author_name: string | null; body: string | null; done_items: string | null; difficulties: string | null; next_action: string | null; status_from: string | null; status_to: string | null; next_followup_on: string | null; created_at: string;
   kind: '進度回報' | '系統紀錄' | null; next_action_due_on: string | null; support_request: string | null; support_type: string | null;
@@ -253,6 +253,32 @@ async function TaskDetail({ params, searchParams }: { params: Promise<{ id: stri
                 )}
                 <div><label className="label" htmlFor="cn">意見（退回時必填：原因與待補事項）</label><input id="cn" name="note" className="field" /></div>
                 <div className="flex gap-2"><Submit name="decision" value="核定">核定結案</Submit><Submit name="decision" value="退回" variant="ghost">退回補正</Submit></div>
+              </ActionForm>
+            </section>
+          )}
+
+          {(isDirector || isLead) && (t.status === '已結案' || closeReturned) && (
+            <section className="card border-l-4 border-l-line p-4" data-reopen>
+              <h2 className="h2 mb-1">撤銷結案決定</h2>
+              <p className="mb-3 text-sm text-muted">
+                {t.status === '已結案'
+                  ? `已於 ${fmtDate(t.closed_on)} 核定結案。按錯或需要修正時，可以撤銷。`
+                  : '結案申請已被退回。如果是按錯，可以撤銷退回，回到待核定重新決定。'}
+                撤銷原因會記錄在「進度與核定歷程」，並通知主責人。
+              </p>
+              <ActionForm action={reopenTask} className="space-y-3">
+                <input type="hidden" name="id" value={t.id} />
+                <input type="hidden" name="expected_updated_at" value={t.updated_at} />
+                <fieldset className="space-y-1 text-sm">
+                  <legend className="label">撤銷後</legend>
+                  <label className="flex min-h-11 items-center gap-2"><input type="radio" name="mode" value="review" defaultChecked />回到「待主管核定」，重新決定（可再核定或退回）</label>
+                  {t.status === '已結案' && (
+                    <label className="flex min-h-11 items-center gap-2"><input type="radio" name="mode" value="reopen" />重新開啟，回到「進行中」，承辦人繼續執行</label>
+                  )}
+                </fieldset>
+                <div><label className="label" htmlFor="ro-reason">撤銷原因 <span className="text-danger">*</span></label>
+                  <input id="ro-reason" name="reason" required minLength={2} maxLength={200} className="field" placeholder="例如：按錯；成果還需補充" /></div>
+                <Submit variant="ghost">撤銷結案決定</Submit>
               </ActionForm>
             </section>
           )}
