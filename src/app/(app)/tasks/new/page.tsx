@@ -1,4 +1,5 @@
 'use client';
+import { SchedFields } from '@/components/SchedFields';
 import { AsyncView, type PageLoader } from '@/components/AsyncView';
 import Link from 'next/link';
 import { requireMe, hasRole } from '@/lib/session';
@@ -52,6 +53,7 @@ async function NewTask() {
           </div>
           <div><label className="label" htmlFor="due">期限</label><input id="due" name="due" type="date" className="field" /></div>
           <div><label className="label" htmlFor="next_followup">下次追蹤日</label><input id="next_followup" name="next_followup" type="date" className="field" /></div>
+          <SchedFields />
           <div>
             <label className="label" htmlFor="priority">優先度</label>
             <select id="priority" name="priority" defaultValue="中" className="field">{['緊急', '高', '中', '低'].map((p) => <option key={p}>{p}</option>)}</select>
