@@ -14,6 +14,7 @@ export function AppShell({ me, unread, pending, children }: { me: Me; unread: nu
     <nav aria-label="主選單" className="flex flex-col gap-1">
       <NavLink href="/">{me.is_director ? '主任儀表板' : '我的首頁'}</NavLink>
       <NavLink href="/tasks">工作管理</NavLink>
+      <NavLink href="/schedule">排程總覽</NavLink>
       {(me.is_director || isLead) && <NavLink href="/approvals" badge={pending}>決策佇列</NavLink>}
       <NavLink href="/evaluation" exclude="/evaluation/board">評鑑中心</NavLink>
       {(me.is_director || isCoord) && <NavLink href="/evaluation/board">教保評鑑追蹤</NavLink>}
