@@ -14,6 +14,20 @@ export async function createTask(_: ActionResult, f: FormData): Promise<ActionRe
     p_notes: str(f, 'notes'), p_indicator: str(f, 'indicator'),
   });
   if (error) return fromError(error, '');
+  // 執行時程（選填）：建立後再寫入；失敗時工作已建立，提示到工作頁修改
+  const schedFrom = str(f, 'sched_from');
+  if (schedFrom) {
+    const period = str(f, 'sched_period') ?? '全天';
+    const { error: e2 } = await sb.rpc('task_edit', { p_task: data.id, p_changes: {
+      sched_from: schedFrom, sched_to: str(f, 'sched_to') ?? schedFrom, sched_period: period,
+      sched_time_from: period === '時段' ? str(f, 'sched_time_from') : null, sched_time_to: period === '時段' ? str(f, 'sched_time_to') : null,
+    } });
+    if (e2) {
+      refresh();
+      go(`/tasks/item?id=${encodeURIComponent(data.id)}&created=1&schedfail=1`);
+      return null;
+    }
+  }
   refresh();
   go(`/tasks/item?id=${encodeURIComponent(data.id)}&created=1`);
   return null;
