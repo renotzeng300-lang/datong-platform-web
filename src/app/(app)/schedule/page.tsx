@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { AsyncView, type PageLoader } from '@/components/AsyncView';
 import { requireMe } from '@/lib/session';
 import { todayTaipei } from '@/lib/format';
-import { isYmd, rangeOf, rangeTitle, shift, type ScheduleEntry, type ScheduleView } from '@/lib/schedule';
+import { isYmd, periodLabel, rangeOf, rangeTitle, shift, type ScheduleEntry, type ScheduleTask, type ScheduleView } from '@/lib/schedule';
 import { ScheduleBoard, type Person } from './ScheduleBoard';
 
 type Search = { view?: string; d?: string };
@@ -15,14 +15,18 @@ async function Schedule({ searchParams }: { searchParams: Promise<Search> }) {
   const view: ScheduleView = sp.view === 'month' ? 'month' : 'week';
   const anchor = isYmd(sp.d) ? sp.d! : today;
   const { from, to, days } = rangeOf(view, anchor);
-  const [{ data: ppl, error: e1 }, { data: depts }, { data: rows, error: e2 }, { data: types }, { data: todayRows }] = await Promise.all([
+  const [{ data: ppl, error: e1 }, { data: depts }, { data: rows, error: e2 }, { data: types }, { data: todayRows }, { data: taskRows, error: e3 }, { data: todayTaskRows }] = await Promise.all([
     sb.rpc('people_picker'),
     sb.from('departments').select('id,name').eq('status', '啟用').order('id'),
     sb.rpc('schedule_range', { p_from: from, p_to: to }),
     sb.rpc('schedule_types'),
     sb.rpc('schedule_range', { p_from: today, p_to: today }),
+    sb.rpc('schedule_tasks', { p_from: from, p_to: to }),
+    sb.rpc('schedule_tasks', { p_from: today, p_to: today }),
   ]);
-  if (e1 || e2) throw e1 ?? e2;
+  if (e1 || e2 || e3) throw e1 ?? e2 ?? e3;
+  const tasks = (taskRows ?? []) as ScheduleTask[];
+  const todayTasks = ((todayTaskRows ?? []) as ScheduleTask[]).filter((x) => x.kind === '執行' && x.status !== '已結案');
   const people = (ppl ?? []) as Person[];
   const entries = (rows ?? []) as ScheduleEntry[];
   const nameOf = (id: string) => people.find((p) => p.id === id)?.name ?? id;
@@ -34,7 +38,7 @@ async function Schedule({ searchParams }: { searchParams: Promise<Search> }) {
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="h1">排程總覽</h1>
-          <p className="text-sm text-muted">誰在哪、誰不在，一眼看清楚。{me.is_director ? '點格子新增，點色塊修改或刪除。' : '排程由主任登記。'}</p>
+          <p className="text-sm text-muted">誰在哪、誰不在，一眼看清楚。{me.is_director ? '點格子新增，點色塊修改或刪除。' : '請假與公事由主任登記。'}綠色是工作的執行時程，虛線框是工作期限，點了可打開工作。</p>
         </div>
         <div className="flex flex-wrap items-center gap-2" role="group" aria-label="切換檢視">
           <Link href={link('week', anchor)} aria-current={view === 'week' ? 'page' : undefined}
@@ -55,6 +59,19 @@ async function Schedule({ searchParams }: { searchParams: Promise<Search> }) {
             ))}
           </ul>
         ) : <p className="text-sm text-muted">今天全員在中心。</p>}
+        {todayTasks.length > 0 && (
+          <>
+            <h3 className="mb-1 mt-3 text-sm font-semibold">今天的工作時程</h3>
+            <ul className="flex flex-wrap gap-2 text-sm">
+              {todayTasks.map((x) => (
+                <li key={`${x.task_id}-${x.person_id}`} className="rounded-full bg-ok-soft px-3 py-1 text-ok">
+                  <b>{nameOf(x.person_id)}</b>・{x.can_open ? <Link className="underline" href={`/tasks/item?id=${encodeURIComponent(x.task_id)}`}>{x.title}</Link> : x.title}
+                  {periodLabel(x) && `（${periodLabel(x)}）`}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
       </section>
 
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -67,12 +84,14 @@ async function Schedule({ searchParams }: { searchParams: Promise<Search> }) {
         <ul className="flex flex-wrap items-center gap-3 text-xs" aria-label="圖例">
           <li className="flex items-center gap-1"><span aria-hidden className="inline-block h-3 w-3 rounded-sm border-l-4 border-accent bg-accent-soft" />公事</li>
           <li className="flex items-center gap-1"><span aria-hidden className="inline-block h-3 w-3 rounded-sm border-l-4 border-danger bg-danger-soft" />請假（顯示假別）</li>
+          <li className="flex items-center gap-1"><span aria-hidden className="inline-block h-3 w-3 rounded-sm border-l-4 border-ok bg-ok-soft" />工作時程</li>
+          <li className="flex items-center gap-1"><span aria-hidden className="inline-block h-3 w-3 rounded-sm border border-dashed border-warn" />工作期限</li>
           <li className="flex items-center gap-1"><span aria-hidden className="inline-block h-3 w-3 rounded-sm bg-paper ring-1 ring-line" />週末</li>
         </ul>
       </div>
 
       <ScheduleBoard view={view} days={days} today={today} people={people} depts={(depts ?? []) as { id: string; name: string }[]}
-                     entries={entries} isDirector={me.is_director} types={(types ?? { 公事: [], 請假: [] }) as Record<'公事' | '請假', string[]>} />
+                     entries={entries} tasks={tasks} isDirector={me.is_director} types={(types ?? { 公事: [], 請假: [] }) as Record<'公事' | '請假', string[]>} />
     </div>
   );
 }

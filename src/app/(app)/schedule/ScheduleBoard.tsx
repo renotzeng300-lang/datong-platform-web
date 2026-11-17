@@ -4,7 +4,8 @@ import { refresh } from '@/lib/session';
 import { supabaseBrowser } from '@/lib/supabase/browser';
 import { fromError } from '@/lib/actions';
 import type { ActionResult } from '@/lib/types';
-import { periodLabel, WEEKDAY, weekday, type ScheduleEntry, type ScheduleView } from '@/lib/schedule';
+import Link from 'next/link';
+import { periodLabel, WEEKDAY, weekday, type ScheduleEntry, type ScheduleTask, type ScheduleView } from '@/lib/schedule';
 
 export type Person = { id: string; name: string; title: string | null; department_id: string };
 type Cat = '公事' | '請假';
@@ -18,9 +19,9 @@ const chipClass = (c: Cat) => c === '請假'
   : 'border-l-4 border-accent bg-accent-soft text-accent';
 
 /** 排程表：列＝同仁（依組別分組）、欄＝日期；主任可點格子新增、點色塊修改 */
-export function ScheduleBoard({ view, days, today, people, depts, entries, isDirector, types }: {
+export function ScheduleBoard({ view, days, today, people, depts, entries, tasks, isDirector, types }: {
   view: ScheduleView; days: string[]; today: string; people: Person[]; depts: { id: string; name: string }[];
-  entries: ScheduleEntry[]; isDirector: boolean; types: Record<Cat, string[]>;
+  entries: ScheduleEntry[]; tasks: ScheduleTask[]; isDirector: boolean; types: Record<Cat, string[]>;
 }) {
   const [draft, setDraft] = useState<Draft | null>(null);
   const groups = depts.map((d) => ({ d, list: people.filter((p) => p.department_id === d.id) })).filter((g) => g.list.length);
@@ -28,6 +29,8 @@ export function ScheduleBoard({ view, days, today, people, depts, entries, isDir
   if (others.length) groups.push({ d: { id: '_', name: '其他' }, list: others });
   const byPerson = new Map<string, ScheduleEntry[]>();
   for (const e of entries) byPerson.set(e.person_id, [...(byPerson.get(e.person_id) ?? []), e]);
+  const tasksByPerson = new Map<string, ScheduleTask[]>();
+  for (const x of tasks) tasksByPerson.set(x.person_id, [...(tasksByPerson.get(x.person_id) ?? []), x]);
   const nameOf = (id: string) => people.find((p) => p.id === id)?.name ?? id;
   const compact = view === 'month';
 
@@ -69,6 +72,7 @@ export function ScheduleBoard({ view, days, today, people, depts, entries, isDir
               <tr><th scope="rowgroup" colSpan={days.length + 1} className="sticky left-0 bg-paper px-2 py-1 text-left text-xs font-semibold text-muted">{d.name}</th></tr>
               {list.map((p) => {
                 const mine = byPerson.get(p.id) ?? [];
+                const myTasks = tasksByPerson.get(p.id) ?? [];
                 return (
                   <tr key={p.id} className="align-top">
                     <th scope="row" className="sticky left-0 z-10 border-b border-r border-line bg-card px-2 py-1 text-left font-medium">
@@ -99,6 +103,22 @@ export function ScheduleBoard({ view, days, today, people, depts, entries, isDir
                                   {content}<span className="sr-only">（{describe(e).replaceAll('\n', '，')}）</span>
                                 </div>
                               );
+                            })}
+                            {myTasks.filter((x) => x.date_from <= day && x.date_to >= day).map((x) => {
+                              const isDue = x.kind === '期限';
+                              const sub = isDue ? '' : periodLabel(x);
+                              const tip = `${isDue ? '工作期限' : `工作時程（${x.role}）`}：${x.title}${sub ? `｜${sub}` : ''}${x.status === '已結案' ? '｜已結案' : ''}`;
+                              const cls = `block w-full rounded px-1 py-0.5 text-left text-xs leading-tight ${isDue ? 'border border-dashed border-warn text-warn' : 'border-l-4 border-ok bg-ok-soft text-ok'} ${x.status === '已結案' ? 'opacity-60' : ''}`;
+                              const body = (
+                                <>
+                                  <span className="font-semibold">{isDue ? '⏰' : ''}{compact ? x.title.slice(0, 2) : x.title}</span>
+                                  {!compact && sub && <span className="ml-1 text-[11px] opacity-80">{sub}</span>}
+                                  {!compact && x.role === '協作' && !isDue && <span className="ml-1 text-[11px] opacity-80">（協作）</span>}
+                                </>
+                              );
+                              return x.can_open
+                                ? <Link key={`${x.task_id}-${x.kind}`} href={`/tasks/item?id=${encodeURIComponent(x.task_id)}`} title={tip} aria-label={tip} className={`${cls} truncate`}>{body}</Link>
+                                : <div key={`${x.task_id}-${x.kind}`} title={tip} className={`${cls} truncate`}>{body}<span className="sr-only">（{tip}）</span></div>;
                             })}
                             {isDirector && (
                               <button type="button" onClick={() => openNew(p.id, day)}
