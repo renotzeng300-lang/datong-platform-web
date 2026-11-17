@@ -9,6 +9,7 @@ import { dueLabel, fmtDate, fmtDateTime, todayTaipei } from '@/lib/format';
 import { ReportPanel } from './ReportPanel';
 import { ResubmitForm } from './ResubmitForm';
 import { EditTaskForm } from './EditTaskForm';
+import { taskSchedLabel } from '@/lib/schedule';
 import type { TaskRow } from '@/lib/types';
 import { deriveFlow, decisionNote, roleOf, FLOW_TONE, type DecisionLite } from '@/lib/flow';
 import { setRisk, approveTask, assignTask, cancelTask, changeDue, closeTask, nudgeTask, proposeToDirector, reopenTask, resolveDecision } from '../actions';
@@ -32,9 +33,9 @@ function Row({ label, danger, children }: { label: string; danger?: boolean; chi
   );
 }
 
-async function TaskDetail({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ created?: string; decided?: string }> }) {
+async function TaskDetail({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ created?: string; decided?: string; schedfail?: string }> }) {
   const { id } = await params;
-  const { created, decided } = await searchParams;
+  const { created, decided, schedfail } = await searchParams;
   const { me, sb } = await requireMe();
   const { data: t } = await sb.from('v_tasks').select('*').eq('id', id).maybeSingle<TaskRow>();
   if (!t) notFound();
@@ -117,6 +118,7 @@ async function TaskDetail({ params, searchParams }: { params: Promise<{ id: stri
         {decided === 'approved' && <p role="status" className="mt-3 rounded-lg bg-ok-soft px-3 py-2 text-sm text-ok">已核定交辦，已通知主責與協作人員。</p>}
         {decided === 'returned' && <p role="status" className="mt-3 rounded-lg bg-warn-soft px-3 py-2 text-sm text-warn">已退回，已通知提報人。</p>}
         {created && <p role="status" className="mt-3 rounded-lg bg-ok-soft px-3 py-2 text-sm text-ok">已建立。{approved ? '已正式交辦並通知主責人。' : '目前為「待主任核定」，核定前不會通知承辦人。'}</p>}
+        {created && schedfail && <p role="alert" className="mt-2 rounded-lg bg-warn-soft px-3 py-2 text-sm text-warn">工作已建立，但「執行時程」沒有存進去（日期或時間可能不正確）。請在下方「✏️ 修改工作內容」重新填寫。</p>}
 
         {/* 流程橫幅：目前在哪一步、等誰、我下一步做什麼 */}
         <section aria-label="目前流程" data-flow={flow.label} className={`mt-4 rounded-lg border-l-4 p-4 ${FLOW_TONE[flow.tone]}`}>
@@ -208,6 +210,7 @@ async function TaskDetail({ params, searchParams }: { params: Promise<{ id: stri
             <Field label="組別">{t.department_name}</Field>
             <Field label="期限">{fmtDate(t.due_on)}<span className="ml-1 text-xs text-muted">民國 {fmtDate(t.due_on, true)}</span></Field>
             <Field label="下次追蹤">{fmtDate(t.next_followup_on)}</Field>
+            <Field label="執行時程">{t.sched_from ? taskSchedLabel(t) : null}</Field>
             <Field label="最新下一步">{latest?.next_action ? <>{latest.next_action}{latest.next_action_due_on && <span className={`ml-1 text-xs ${t.due_on && latest.next_action_due_on > t.due_on ? 'font-semibold text-danger' : 'text-muted'}`}>（預計 {fmtDate(latest.next_action_due_on)}{t.due_on && latest.next_action_due_on > t.due_on ? '，晚於正式期限' : ''}）</span>}</> : null}</Field>
             <Field label="工作階段">{t.stage}</Field>
             <Field label="承辦回報完成">{fmtDate(t.completed_on)}</Field>

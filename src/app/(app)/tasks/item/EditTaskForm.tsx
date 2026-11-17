@@ -9,6 +9,7 @@ type Dept = { id: string; name: string };
 type Values = {
   title: string; notes: string; department: string; owner: string; collaborators: string[]; due_on: string;
   next_followup_on: string; priority: string; sensitivity: string; indicators: string; deliverables: string; cross_support: string;
+  sched_from: string; sched_to: string; sched_period: string; sched_time_from: string; sched_time_to: string;
 };
 
 const splitList = (s: string) => [...new Set(s.split(/[、，,;；\s/／]+/).map((x) => x.trim().toUpperCase()).filter(Boolean))].sort();
@@ -23,6 +24,7 @@ export function EditTaskForm({ task, formal, isManager, people, depts }: {
     id: string; title: string; notes: string | null; department_id: string; owner_person_id: string | null; collaborators: string[];
     due_on: string | null; next_followup_on: string | null; priority: string; sensitivity: string; indicator_ids: string[];
     deliverables: string | null; cross_support: string | null; updated_at: string;
+    sched_from: string | null; sched_to: string | null; sched_period: string | null; sched_time_from: string | null; sched_time_to: string | null;
   };
   formal: boolean; isManager: boolean; people: Person[]; depts: Dept[];
 }) {
@@ -31,6 +33,8 @@ export function EditTaskForm({ task, formal, isManager, people, depts }: {
     collaborators: task.collaborators, due_on: task.due_on ?? '', next_followup_on: task.next_followup_on ?? '',
     priority: task.priority, sensitivity: task.sensitivity, indicators: task.indicator_ids.join('、'),
     deliverables: task.deliverables ?? '', cross_support: task.cross_support ?? '',
+    sched_from: task.sched_from ?? '', sched_to: task.sched_to ?? '', sched_period: task.sched_period ?? '全天',
+    sched_time_from: task.sched_time_from?.slice(0, 5) ?? '', sched_time_to: task.sched_time_to?.slice(0, 5) ?? '',
   };
   const [v, setV] = useState<Values>(init);
   const [reason, setReason] = useState('');
@@ -43,6 +47,12 @@ export function EditTaskForm({ task, formal, isManager, people, depts }: {
     if (v[k].trim() !== String(init[k]).trim()) changes[k] = v[k].trim() || null;
   }
   if (!sameList(v.collaborators, init.collaborators)) changes.collaborators = v.collaborators;
+  // 執行時程：任一欄有變就整組送出
+  const schedNow = v.sched_from ? [v.sched_from, v.sched_to || v.sched_from, v.sched_period, v.sched_period === '時段' ? v.sched_time_from : '', v.sched_period === '時段' ? v.sched_time_to : ''] : ['', '', '', '', ''];
+  const schedInit = init.sched_from ? [init.sched_from, init.sched_to, init.sched_period, init.sched_period === '時段' ? init.sched_time_from : '', init.sched_period === '時段' ? init.sched_time_to : ''] : ['', '', '', '', ''];
+  if (schedNow.join('|') !== schedInit.join('|')) {
+    Object.assign(changes, { sched_from: schedNow[0] || null, sched_to: schedNow[1] || null, sched_period: schedNow[2] || null, sched_time_from: schedNow[3] || null, sched_time_to: schedNow[4] || null });
+  }
   if (!sameList(splitList(v.indicators), task.indicator_ids)) changes.indicators = splitList(v.indicators);
   const dirty = Object.keys(changes).length > 0;
   useUnsavedGuard(dirty && !result?.ok);
@@ -99,6 +109,28 @@ export function EditTaskForm({ task, formal, isManager, people, depts }: {
                 {['一般內部', '限組別', '高度限制'].map((p) => <option key={p}>{p}</option>)}
               </select></div>
           </div>
+
+          <fieldset className="rounded-lg border border-line p-3">
+            <legend className="px-1 text-sm font-semibold">執行時程（選填，會顯示在排程總覽）</legend>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div><label className="label" htmlFor="ed-sf">開始日期</label>
+                <input id="ed-sf" type="date" value={v.sched_from} className="field"
+                       onChange={(e) => { const d = e.target.value; setV((o) => ({ ...o, sched_from: d, sched_to: !d ? '' : (!o.sched_to || o.sched_to < d ? d : o.sched_to) })); setResult(null); }} /></div>
+              <div><label className="label" htmlFor="ed-st">結束日期</label>
+                <input id="ed-st" type="date" value={v.sched_to} min={v.sched_from || undefined} disabled={!v.sched_from} onChange={(e) => set('sched_to', e.target.value)} className="field" /></div>
+              <div><label className="label" htmlFor="ed-sp">時段</label>
+                <select id="ed-sp" value={v.sched_period} disabled={!v.sched_from} onChange={(e) => set('sched_period', e.target.value)} className="field">
+                  <option>全天</option><option>上午</option><option>下午</option><option value="時段">指定時間</option>
+                </select></div>
+              {v.sched_from && v.sched_period === '時段' && (
+                <>
+                  <div><label className="label" htmlFor="ed-stf">開始時間</label><input id="ed-stf" type="time" value={v.sched_time_from} required onChange={(e) => set('sched_time_from', e.target.value)} className="field" /></div>
+                  <div><label className="label" htmlFor="ed-stt">結束時間</label><input id="ed-stt" type="time" value={v.sched_time_to} required onChange={(e) => set('sched_time_to', e.target.value)} className="field" /></div>
+                </>
+              )}
+            </div>
+            {v.sched_from && <button type="button" className="mt-2 text-xs text-accent underline" onClick={() => setV((o) => ({ ...o, sched_from: '', sched_to: '', sched_period: '全天', sched_time_from: '', sched_time_to: '' }))}>清除執行時程</button>}
+          </fieldset>
 
           <fieldset>
             <legend className="label">協作人員 <span className="font-normal text-muted">（已選 {v.collaborators.length} 位）</span></legend>
