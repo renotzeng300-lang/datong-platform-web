@@ -45,3 +45,17 @@ export function rangeTitle(view: ScheduleView, from: string, to: string): string
   if (view === 'month') return `${y} 年 ${Number(m)} 月`;
   return `${from.replaceAll('-', '/')} – ${to.slice(5).replace('-', '/')}`;
 }
+
+/** 排程總覽上的工作：執行時程（主責、協作）或期限（主責） */
+export type ScheduleTask = {
+  task_id: string; title: string; can_open: boolean; person_id: string; role: '主責' | '協作'; kind: '執行' | '期限';
+  date_from: string; date_to: string; period: ScheduleEntry['period']; time_from: string | null; time_to: string | null; status: string;
+};
+
+/** 工作執行時程的文字，例如「2026-11-20 下午」「2026-11-20～2026-11-21」「2026-11-20 14:00–16:00」 */
+export function taskSchedLabel(t: { sched_from: string | null; sched_to: string | null; sched_period: string | null; sched_time_from: string | null; sched_time_to: string | null }): string {
+  if (!t.sched_from) return '';
+  const range = t.sched_to && t.sched_to !== t.sched_from ? `${t.sched_from}～${t.sched_to}` : t.sched_from;
+  const per = t.sched_period === '時段' ? `${(t.sched_time_from ?? '').slice(0, 5)}–${(t.sched_time_to ?? '').slice(0, 5)}` : t.sched_period === '全天' ? '' : t.sched_period ?? '';
+  return per ? `${range} ${per}` : range;
+}

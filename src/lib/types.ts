@@ -16,6 +16,7 @@ export type TaskRow = {
   owner_person_id: string | null; owner_name: string | null; coordinator_person_id: string | null; coordinator_name: string | null;
   reviewer_person_id: string | null; stage: string | null; deliverables: string | null; cross_support: string | null;
   start_on: string | null; due_on: string | null; next_followup_on: string | null; status: string; approval_status: string;
+  sched_from: string | null; sched_to: string | null; sched_period: '全天' | '上午' | '下午' | '時段' | null; sched_time_from: string | null; sched_time_to: string | null;
   approved_by: string | null; approved_at: string | null; completed_on: string | null; closed_on: string | null;
   priority: string; sensitivity: string; evidence_restricted: boolean; pdf_page: number | null; result_link: string | null;
   notes: string | null; source_sheet: string | null; source_row: number | null; source_status_raw: string | null;
