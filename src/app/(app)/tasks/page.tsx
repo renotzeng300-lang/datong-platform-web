@@ -13,7 +13,7 @@ const FILTERS = TASK_FILTERS;
 async function Tasks({ searchParams }: { searchParams: Promise<TaskSearch> }) {
   const sp = await searchParams;
   const { me, sb } = await requireMe();
-  let q = sb.from('v_tasks').select('*').order('due_on', { ascending: true, nullsFirst: false }).order('id').limit(500);
+  let q = sb.from('v_tasks').select('*').order('due_on', { ascending: false, nullsFirst: false }).order('id', { ascending: false }).limit(500);
   q = applyTaskFilters(q, sp, me, await collabTaskIds(sb, sp));
   const [{ data, error }, { data: depts }, { data: ppl }] = await Promise.all([q, sb.from('departments').select('id,name').order('id'),
     sb.rpc('people_picker')]);
