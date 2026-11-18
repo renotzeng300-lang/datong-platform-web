@@ -38,7 +38,7 @@ const TASK_COLUMNS: { header: string; width: number; get: (t: TaskRow) => string
 
 export async function exportTasks(sp: TaskSearch) {
   const { me, sb } = session();
-  let q = sb.from('v_tasks').select('*').order('due_on', { ascending: true, nullsFirst: false }).order('id').limit(5000);
+  let q = sb.from('v_tasks').select('*').order('due_on', { ascending: false, nullsFirst: false }).order('id', { ascending: false }).limit(5000);
   q = applyTaskFilters(q, sp, me, await collabTaskIds(sb, sp));
   const { data, error } = await q;
   const personName = sp.person ? (await sb.from('people').select('name').eq('id', sp.person).maybeSingle<{ name: string }>()).data?.name ?? sp.person : '';
